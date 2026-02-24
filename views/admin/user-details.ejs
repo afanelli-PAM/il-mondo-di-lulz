@@ -1,0 +1,100 @@
+<%- include('../partials/header') %>
+
+    <section class="dashboard-section">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Dettagli e Attività Utente</h1>
+                <p>Profilo di <%= user.nome %>
+                        <%= user.cognome %>
+                </p>
+            </div>
+
+            <div class="chart-grid">
+                <!-- Info Profilo -->
+                <div class="chart-card">
+                    <h3>Scheda Personale</h3>
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">
+                            <%= user.email %>
+                        </span>
+                    </div>
+                    <div class="info-item" style="margin-top: 0.5rem;">
+                        <span class="info-label">Nascita</span>
+                        <span class="info-value">
+                            <%= user.data_nascita %> a <%= user.luogo_nascita %>
+                        </span>
+                    </div>
+                    <div class="info-item" style="margin-top: 0.5rem;">
+                        <span class="info-label">Segno</span>
+                        <span class="info-value">
+                            <%= user.segno_zodiacale %>
+                        </span>
+                    </div>
+                    <div class="info-item" style="margin-top: 0.5rem;">
+                        <span class="info-label">Registrato il</span>
+                        <span class="info-value">
+                            <%= new Date(user.created_at).toLocaleString('it-IT') %>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Risposte al Form -->
+                <div class="chart-card">
+                    <h3>Dati dal Form</h3>
+                    <div class="info-item">
+                        <span class="info-label">Come ti vedono</span>
+                        <p class="info-value" style="font-weight: normal; font-size: 0.9rem;">
+                            <%= user.come_ti_vedono || 'N/D' %>
+                        </p>
+                    </div>
+                    <div class="info-item" style="margin-top: 0.5rem;">
+                        <span class="info-label">Come sei realmente</span>
+                        <p class="info-value" style="font-weight: normal; font-size: 0.9rem;">
+                            <%= user.come_sei || 'N/D' %>
+                        </p>
+                    </div>
+                    <div class="info-item" style="margin-top: 0.5rem;">
+                        <span class="info-label">Attività/Aspirazioni</span>
+                        <p class="info-value" style="font-weight: normal; font-size: 0.9rem;">
+                            <%= user.attivita_aspirazioni || 'N/D' %>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attività Oracolo -->
+            <div class="chart-card">
+                <h3>Richieste all'Oracolo</h3>
+                <% if (oracleActivity && oracleActivity.length> 0) { %>
+                    <div class="aspects-list">
+                        <% oracleActivity.forEach(msg=> { %>
+                            <div class="aspect-item" style="flex-direction: column; gap: 0.3rem;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span class="aspect-type">Domanda</span>
+                                    <small style="color: var(--text-muted);">
+                                        <%= new Date(msg.created_at).toLocaleString('it-IT') %>
+                                    </small>
+                                </div>
+                                <p style="font-style: italic;">
+                                    <%= msg.domanda %>
+                                </p>
+                                <div style="margin-top: 0.5rem; color: var(--gold-light);">
+                                    <strong>Risposta:</strong>
+                                    <%= msg.risposta || 'In attesa...' %>
+                                </div>
+                            </div>
+                            <% }); %>
+                    </div>
+                    <% } else { %>
+                        <p style="text-align: center; color: var(--text-muted);">Nessuna interazione con l'oracolo.</p>
+                        <% } %>
+            </div>
+
+            <div class="form-actions" style="margin-top: 2rem;">
+                <a href="/admin/users" class="btn btn-secondary">&larr; Torna alla Lista</a>
+            </div>
+        </div>
+    </section>
+
+    <%- include('../partials/footer') %>

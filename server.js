@@ -107,11 +107,13 @@ async function start() {
   const oracleRoutes = require('./routes/oracle');
   const profileRoutes = require('./routes/profile');
   const gdprRoutes = require('./routes/gdpr');
+  const adminRoutes = require('./routes/admin');
 
   app.use('/auth', authLimiter, doubleCsrfProtection, authRoutes);
   app.use('/oracolo', oracleLimiter, doubleCsrfProtection, oracleRoutes);
   app.use('/profilo', doubleCsrfProtection, profileRoutes);
   app.use('/gdpr', doubleCsrfProtection, gdprRoutes);
+  app.use('/admin', adminRoutes);
 
   // Homepage
   app.get('/', (req, res) => {

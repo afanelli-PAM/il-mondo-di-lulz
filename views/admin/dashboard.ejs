@@ -1,0 +1,73 @@
+<%- include('../partials/header') %>
+
+    <section class="dashboard-section">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Dashboard Amministrativa</h1>
+                <p>Panoramica delle attività del Mondo di Lulz</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dash-card">
+                    <div class="dash-card-icon">👥</div>
+                    <h3>
+                        <%= stats.userCount %>
+                    </h3>
+                    <p>Utenti Registrati</p>
+                    <div class="dash-card-actions">
+                        <a href="/admin/users" class="btn btn-secondary">Gestisci Utenti</a>
+                    </div>
+                </div>
+
+                <div class="dash-card">
+                    <div class="dash-card-icon">🔮</div>
+                    <h3>
+                        <%= stats.oracleCount %>
+                    </h3>
+                    <p>Richieste all'Oracolo</p>
+                </div>
+
+                <div class="dash-card">
+                    <div class="dash-card-icon">🛡️</div>
+                    <h3>Sessione</h3>
+                    <p>Amministratore Attivo</p>
+                    <div class="dash-card-actions">
+                        <a href="/admin/logout" class="btn btn-danger-outline">Esci</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h2>Ultimi Registrati</h2>
+                <table class="planet-table">
+                    <thead>
+                        <tr>
+                            <th>Utente</th>
+                            <th>Email</th>
+                            <th>Registrato il</th>
+                            <th>Azione</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% latestUsers.forEach(user=> { %>
+                            <tr>
+                                <td>
+                                    <%= user.nome %>
+                                </td>
+                                <td>
+                                    <%= user.email %>
+                                </td>
+                                <td>
+                                    <%= new Date(user.created_at).toLocaleDateString('it-IT') %>
+                                </td>
+                                <td><a href="/admin/users/<%= user.id %>" class="btn btn-secondary"
+                                        style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">Dettagli</a></td>
+                            </tr>
+                            <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <%- include('../partials/footer') %>

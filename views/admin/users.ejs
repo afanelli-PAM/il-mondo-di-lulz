@@ -1,0 +1,53 @@
+<%- include('../partials/header') %>
+
+    <section class="dashboard-section">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Gestione Utenti</h1>
+                <p>Lista completa degli iscritti al Mondo di Lulz</p>
+            </div>
+
+            <div class="chart-card">
+                <table class="planet-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Segno</th>
+                            <th>Registrato il</th>
+                            <th>Azione</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.forEach(u=> { %>
+                            <tr>
+                                <td>
+                                    <%= u.nome %>
+                                        <%= u.cognome %>
+                                </td>
+                                <td>
+                                    <%= u.email %>
+                                </td>
+                                <td>
+                                    <%= u.segno_zodiacale || 'N/D' %>
+                                </td>
+                                <td>
+                                    <%= new Date(u.created_at).toLocaleDateString('it-IT') %>
+                                </td>
+                                <td>
+                                    <a href="/admin/users/<%= u.id %>" class="btn btn-secondary"
+                                        style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">Vedi Attività</a>
+                                </td>
+                            </tr>
+                            <% }); %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-actions" style="margin-top: 2rem;">
+                <a href="/admin/dashboard" class="btn btn-secondary">&larr; Torna alla Dashboard</a>
+            </div>
+        </div>
+    </section>
+
+    <%- include('../partials/footer') %>

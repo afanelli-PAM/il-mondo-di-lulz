@@ -1,0 +1,39 @@
+<%- include('../partials/header') %>
+
+<section class="form-section">
+  <div class="container-xs">
+    <div class="form-header">
+      <div class="oracle-icon">🛡️</div>
+      <h1>Accesso Amministratore</h1>
+      <p>Area protetta. Identificati per procedere.</p>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <form action="/admin/login" method="POST" class="dash-card">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required autofocus>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-full">Accedi al Portale</button>
+      </div>
+    </form>
+    
+    <div class="form-footer-text">
+      <a href="/">&larr; Torna al sito</a>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>
