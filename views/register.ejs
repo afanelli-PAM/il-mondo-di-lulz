@@ -1,0 +1,142 @@
+<%- include('partials/header') %>
+
+<section class="form-section">
+  <div class="container container-narrow">
+    <div class="form-header">
+      <h1>Registrati al Mondo di Lulz</h1>
+      <p>Compila il modulo sottostante per iniziare il tuo viaggio astrologico. Le domande personali ci aiuteranno a creare un tema natale estremamente preciso.</p>
+    </div>
+
+    <% if (error) { %>
+      <div class="alert alert-error" role="alert"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/auth/register" class="register-form" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <fieldset>
+        <legend>Dati di Accesso</legend>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="email" required autocomplete="email"
+                 value="<%= formData.email || '' %>" placeholder="la.tua@email.it">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <input type="password" id="password" name="password" required autocomplete="new-password"
+                   minlength="8" placeholder="Almeno 8 caratteri">
+          </div>
+          <div class="form-group">
+            <label for="password_confirm">Conferma Password *</label>
+            <input type="password" id="password_confirm" name="password_confirm" required
+                   autocomplete="new-password" placeholder="Ripeti la password">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Informazioni Personali</legend>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nome">Nome *</label>
+            <input type="text" id="nome" name="nome" required autocomplete="given-name"
+                   value="<%= formData.nome || '' %>">
+          </div>
+          <div class="form-group">
+            <label for="cognome">Cognome *</label>
+            <input type="text" id="cognome" name="cognome" required autocomplete="family-name"
+                   value="<%= formData.cognome || '' %>">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="data_nascita">Data di Nascita *</label>
+            <input type="date" id="data_nascita" name="data_nascita" required
+                   value="<%= formData.data_nascita || '' %>">
+          </div>
+          <div class="form-group">
+            <label for="ora_nascita">Ora di Nascita (se la conosci)</label>
+            <input type="time" id="ora_nascita" name="ora_nascita"
+                   value="<%= formData.ora_nascita || '' %>">
+            <small>L'ora esatta &egrave; fondamentale per un tema natale preciso</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="luogo_nascita">Luogo di Nascita *</label>
+          <input type="text" id="luogo_nascita" name="luogo_nascita" required
+                 value="<%= formData.luogo_nascita || '' %>" placeholder="Es: Bari, Italia">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>L'Intervista</legend>
+        <p class="fieldset-intro">Rispondi a queste domande per permetterci di creare un profilo astrologico completo e personalizzato. Pi&ugrave; dettagli fornisci, pi&ugrave; preciso sar&agrave; il tuo tema natale.</p>
+
+        <div class="form-group">
+          <label for="come_ti_vedono">Descriviti per come pensi che gli altri ti vedano</label>
+          <textarea id="come_ti_vedono" name="come_ti_vedono" rows="4"
+                    placeholder="Come ti percepiscono le persone intorno a te? Quale impressione dai a prima vista?"><%= formData.come_ti_vedono || '' %></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="come_sei">Descriviti per quello che sei veramente</label>
+          <textarea id="come_sei" name="come_sei" rows="4"
+                    placeholder="Chi sei davvero, al di l&agrave; delle apparenze? Quali sono i tuoi valori pi&ugrave; profondi?"><%= formData.come_sei || '' %></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="attivita_aspirazioni">Che attivit&agrave; svolgi attualmente e cosa ti piacerebbe fare nella vita</label>
+          <textarea id="attivita_aspirazioni" name="attivita_aspirazioni" rows="4"
+                    placeholder="Cosa fai nella vita? Quali sono i tuoi sogni e le tue aspirazioni?"><%= formData.attivita_aspirazioni || '' %></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="tre_cose_piacciono">Tre cose che ti piacciono</label>
+          <textarea id="tre_cose_piacciono" name="tre_cose_piacciono" rows="2"
+                    placeholder="Elenca tre cose che ami"><%= formData.tre_cose_piacciono || '' %></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="tre_cose_odi">Tre cose che odi</label>
+          <textarea id="tre_cose_odi" name="tre_cose_odi" rows="2"
+                    placeholder="Elenca tre cose che proprio non sopporti"><%= formData.tre_cose_odi || '' %></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="felicita">Che cos'&egrave; per te la felicit&agrave;?</label>
+          <textarea id="felicita" name="felicita" rows="4"
+                    placeholder="Rifletti su cosa significa per te essere felice..."><%= formData.felicita || '' %></textarea>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Consenso</legend>
+
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" name="consenso_privacy" value="1"
+                   <%= formData.consenso_privacy ? 'checked' : '' %> required>
+            <span>Ho letto e accetto l'<a href="/privacy-policy" target="_blank">informativa sulla privacy</a>
+            ai sensi del Regolamento UE 2016/679 (GDPR). *</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-large">Registrati</button>
+      </div>
+
+      <p class="form-footer-text">
+        Hai gi&agrave; un account? <a href="/auth/login">Accedi</a>
+      </p>
+    </form>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

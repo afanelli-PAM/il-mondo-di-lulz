@@ -1,0 +1,37 @@
+  </main>
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-col">
+        <h4>Il Mondo di Lulz</h4>
+        <p>Un'esperienza unica dove potrete esplorare il mistero e la bellezza dell'astrologia.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Link Utili</h4>
+        <ul>
+          <li><a href="/privacy-policy">Informativa sulla Privacy</a></li>
+          <li><a href="/cookie-policy">Cookie Policy</a></li>
+          <% if (user) { %>
+            <li><a href="/gdpr/i-miei-dati">Esporta i Miei Dati</a></li>
+            <li><a href="/gdpr/cancella-account">Cancella il Mio Account</a></li>
+          <% } %>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contatti</h4>
+        <p>Per informazioni, suggerimenti o segnalazioni:</p>
+        <p><a href="mailto:log2ins@gmail.com">log2ins@gmail.com</a></p>
+        <p style="margin-top: 0.8rem;">
+          <a href="/downloads/IlMondoDiLulz.epub" download class="footer-download">&#x1F4D6; Scarica il romanzo (ePub)</a>
+        </p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; <%= new Date().getFullYear() %> Il Mondo di Lulz. Tutti i diritti riservati.</p>
+    </div>
+  </footer>
+
+  <%- include('cookie-banner') %>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

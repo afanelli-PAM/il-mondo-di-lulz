@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Il Mondo di Lulz - Consulti astrologici personalizzati basati su una tecnica innovativa">
+  <title><%= typeof title !== 'undefined' ? title + ' | ' : '' %>Il Mondo di Lulz</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav-container">
+      <a href="/" class="logo-link">
+        <img src="/images/dragon-logo.svg" alt="Il Mondo di Lulz" class="logo-img">
+        <span class="logo-text">Il Mondo di Lulz</span>
+      </a>
+      <div class="nav-links">
+        <% if (user) { %>
+          <a href="/profilo">Il Mio Profilo</a>
+          <a href="/profilo/tema-natale">Tema Natale</a>
+          <a href="/oracolo">Chiedi all'Oracolo</a>
+          <a href="/auth/logout" class="btn-nav">Esci</a>
+        <% } else { %>
+          <a href="/auth/login" class="btn-nav">Accedi</a>
+          <a href="/auth/register" class="btn-nav btn-primary">Registrati</a>
+        <% } %>
+      </div>
+      <button class="mobile-menu-btn" aria-label="Menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+  <main class="main-content">

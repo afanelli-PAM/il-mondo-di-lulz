@@ -1,0 +1,66 @@
+<%- include('partials/header') %>
+
+<section class="legal-section">
+  <div class="container container-narrow">
+    <h1>Cookie Policy</h1>
+    <p class="legal-subtitle">Informativa sull'uso dei Cookie</p>
+    <p class="legal-date">Ultimo aggiornamento: <%= new Date().toLocaleDateString('it-IT') %></p>
+
+    <div class="legal-content">
+      <h2>1. Cosa sono i Cookie</h2>
+      <p>I cookie sono piccoli file di testo che vengono memorizzati sul tuo dispositivo quando visiti un sito web. Sono ampiamente utilizzati per far funzionare i siti web in modo pi&ugrave; efficiente e per fornire informazioni ai proprietari del sito.</p>
+
+      <h2>2. Cookie che Utilizziamo</h2>
+
+      <h3>Cookie Tecnici (Necessari)</h3>
+      <p>Questi cookie sono essenziali per il funzionamento del sito e non possono essere disattivati. Vengono impostati solo in risposta ad azioni che corrispondono a una richiesta di servizi.</p>
+      <table class="cookie-table">
+        <thead>
+          <tr>
+            <th>Cookie</th>
+            <th>Durata</th>
+            <th>Finalit&agrave;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>lulz.sid</code></td>
+            <td>24 ore</td>
+            <td>Gestione della sessione utente (autenticazione)</td>
+          </tr>
+          <tr>
+            <td><code>__csrf</code></td>
+            <td>Sessione</td>
+            <td>Protezione contro attacchi Cross-Site Request Forgery</td>
+          </tr>
+          <tr>
+            <td><code>cookie_consent</code></td>
+            <td>1 anno</td>
+            <td>Registrazione della scelta sui cookie</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Cookie di Terze Parti</h3>
+      <p><strong>Non utilizziamo cookie di terze parti</strong>, cookie di profilazione o cookie per finalit&agrave; pubblicitarie.</p>
+
+      <h2>3. Come Gestire i Cookie</h2>
+      <p>Puoi gestire le preferenze sui cookie in qualsiasi momento attraverso le impostazioni del tuo browser. Tieni presente che la disabilitazione dei cookie tecnici potrebbe compromettere il funzionamento del sito.</p>
+      <p>Istruzioni per i principali browser:</p>
+      <ul>
+        <li><strong>Chrome:</strong> Impostazioni &gt; Privacy e sicurezza &gt; Cookie</li>
+        <li><strong>Firefox:</strong> Opzioni &gt; Privacy e sicurezza &gt; Cookie e dati dei siti</li>
+        <li><strong>Safari:</strong> Preferenze &gt; Privacy</li>
+        <li><strong>Edge:</strong> Impostazioni &gt; Cookie e autorizzazioni del sito</li>
+      </ul>
+
+      <h2>4. Base Giuridica</h2>
+      <p>L'utilizzo dei cookie tecnici si basa sull'interesse legittimo del titolare a fornire un servizio sicuro e funzionante (art. 6, par. 1, lett. f del GDPR). Non necessitano del consenso dell'utente in quanto strettamente necessari alla fornitura del servizio.</p>
+
+      <h2>5. Contatti</h2>
+      <p>Per qualsiasi domanda relativa all'uso dei cookie, puoi contattarci all'indirizzo email: <a href="mailto:log2ins@gmail.com">log2ins@gmail.com</a> oppure consultare l'<a href="/privacy-policy">informativa sulla privacy</a>.</p>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

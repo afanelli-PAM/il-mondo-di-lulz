@@ -1,0 +1,115 @@
+<%- include('partials/header') %>
+
+<section class="hero">
+  <div class="hero-bg">
+    <div class="stars"></div>
+  </div>
+  <div class="hero-content">
+    <img src="/images/dragon-logo.svg" alt="Il Mondo di Lulz" class="hero-logo">
+    <h1>Il Mondo di Lulz</h1>
+    <p class="hero-subtitle">Esplora il mistero e la bellezza dell'astrologia</p>
+  </div>
+</section>
+
+<section class="welcome-section">
+  <div class="container">
+    <div class="welcome-text">
+      <p>
+        Benvenuti nel <strong>Mondo di Lulz</strong>, un'esperienza unica dove potrete esplorare
+        il mistero e la bellezza dell'astrologia. Siamo orgogliosi di offrirvi servizi astrologici
+        di qualit&agrave;, basati su una tecnica innovativa che ci permette di creare un tema natale
+        estremamente preciso.
+      </p>
+      <p>
+        Attraverso una serie di domande mirate, saremo in grado di determinare con estrema precisione
+        l'esatta posizione dei pianeti al momento della vostra nascita.
+      </p>
+      <p>
+        Con queste informazioni, offriamo <strong>consulti astrologici personalizzati</strong> che vi
+        aiuteranno a comprendere meglio voi stessi e a prendere decisioni informate per il vostro futuro.
+        Non perdete l'occasione di scoprire le risposte che cercate e di esplorare il vostro destino.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="features-section">
+  <div class="container">
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">&#x2648;</div>
+        <h3>Tema Natale Personalizzato</h3>
+        <p>
+          Registrati e ricevi un tema natale dettagliato basato sulla tua data di nascita
+          e sul tuo profilo personale. Una mappa celeste unica, creata solo per te.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#x1F52E;</div>
+        <h3>Chiedi all'Oracolo</h3>
+        <p>
+          Fai una domanda all'oracolo e, se le condizioni astrali permetteranno di conoscere
+          una risposta certa, ti invieremo un responso personalizzato in tempo reale.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#x2728;</div>
+        <h3>Consulti Gratuiti</h3>
+        <p>
+          Tutti i nostri servizi sono completamente gratuiti. Registrati attraverso il form
+          e inizia il tuo viaggio verso l'autoconsapevolezza.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="book-section">
+  <div class="container">
+    <div class="book-showcase">
+      <div class="book-cover">
+        <img src="/images/copertina.jpg" alt="Il Mondo di Lulz - Romanzo di Antonio Fanelli">
+      </div>
+      <div class="book-info">
+        <span class="book-label">Il Romanzo</span>
+        <h2>Il Mondo di Lulz</h2>
+        <p class="book-author">di <strong>Antonio Fanelli</strong></p>
+        <p class="book-description">
+          Un viaggio tra hacking, astrologia e destini intrecciati. Lulz, un giovane pirata informatico,
+          costruisce un sito di consulti astrologici come esca per una truffa. Ma quando il gioco diventa
+          realt&agrave;, le vite di tutti i protagonisti cambieranno per sempre.
+        </p>
+        <p class="book-description">
+          Scopri il romanzo che ha ispirato questo sito e immergiti nella storia che ha dato vita
+          all'Oracolo, al drago dorato e al mondo di Lulz.
+        </p>
+        <a href="/downloads/IlMondoDiLulz.epub" download class="btn btn-primary btn-large btn-download">
+          &#x1F4D6; Scarica l'eBook Gratis
+        </a>
+        <small class="book-format">Formato ePub &middot; Compatibile con tutti gli e-reader</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="container">
+    <% if (!user) { %>
+      <h2>Inizia il tuo viaggio</h2>
+      <p>Registrati gratuitamente e scopri cosa hanno in serbo per te le stelle.</p>
+      <a href="/auth/register" class="btn btn-primary btn-large">Registrati Ora</a>
+    <% } else { %>
+      <h2>Bentornato, <%= user.nome %></h2>
+      <p>L'oracolo ti attende. Cosa desideri sapere oggi?</p>
+      <a href="/oracolo" class="btn btn-primary btn-large">Chiedi all'Oracolo</a>
+    <% } %>
+  </div>
+</section>
+
+<% if (typeof deleted !== 'undefined' || (typeof query !== 'undefined' && query && query.deleted)) { %>
+<script>
+  // Notifica cancellazione account avvenuta
+</script>
+<% } %>
+
+<%- include('partials/footer') %>

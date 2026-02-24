@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <radialGradient id="sphere" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#0a0a15"/>
+    </radialGradient>
+    <radialGradient id="yinyang" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff8dc"/>
+      <stop offset="100%" stop-color="#daa520"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="star-glow">
+      <feGaussianBlur stdDeviation="0.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="url(#sphere)" stroke="#daa520" stroke-width="1.5" opacity="0.9"/>
+
+  <!-- Taijitu (Yin-Yang) made of stars -->
+  <g filter="url(#star-glow)">
+    <!-- Light half (right) with scattered stars -->
+    <path d="M100,15 A85,85 0 0,1 100,185 A42.5,42.5 0 0,0 100,100 A42.5,42.5 0 0,1 100,15" fill="none"/>
+    <!-- Stars in the light half -->
+    <circle cx="120" cy="40" r="1.5" fill="#fff8dc"/>
+    <circle cx="140" cy="55" r="1" fill="#fff8dc"/>
+    <circle cx="155" cy="75" r="1.5" fill="#fff8dc"/>
+    <circle cx="160" cy="100" r="1" fill="#fff8dc"/>
+    <circle cx="155" cy="125" r="1.5" fill="#fff8dc"/>
+    <circle cx="140" cy="145" r="1" fill="#fff8dc"/>
+    <circle cx="120" cy="160" r="1.5" fill="#fff8dc"/>
+    <circle cx="130" cy="70" r="0.8" fill="#fff8dc"/>
+    <circle cx="145" cy="90" r="1.2" fill="#fff8dc"/>
+    <circle cx="148" cy="112" r="0.8" fill="#fff8dc"/>
+    <circle cx="135" cy="135" r="1.2" fill="#fff8dc"/>
+    <circle cx="115" cy="50" r="0.8" fill="#fff8dc"/>
+    <circle cx="110" cy="150" r="0.8" fill="#fff8dc"/>
+
+    <!-- Stars in the dark half -->
+    <circle cx="80" cy="40" r="1.5" fill="#daa520"/>
+    <circle cx="60" cy="55" r="1" fill="#daa520"/>
+    <circle cx="45" cy="75" r="1.5" fill="#daa520"/>
+    <circle cx="40" cy="100" r="1" fill="#daa520"/>
+    <circle cx="45" cy="125" r="1.5" fill="#daa520"/>
+    <circle cx="60" cy="145" r="1" fill="#daa520"/>
+    <circle cx="80" cy="160" r="1.5" fill="#daa520"/>
+    <circle cx="70" cy="70" r="0.8" fill="#daa520"/>
+    <circle cx="55" cy="90" r="1.2" fill="#daa520"/>
+    <circle cx="52" cy="112" r="0.8" fill="#daa520"/>
+    <circle cx="65" cy="135" r="1.2" fill="#daa520"/>
+    <circle cx="85" cy="50" r="0.8" fill="#daa520"/>
+    <circle cx="90" cy="150" r="0.8" fill="#daa520"/>
+
+    <!-- Yin-Yang divider curve -->
+    <path d="M100,20 A40,40 0 0,1 100,100 A40,40 0 0,0 100,180"
+          fill="none" stroke="#daa520" stroke-width="0.5" opacity="0.5"/>
+
+    <!-- Dots -->
+    <circle cx="100" cy="58" r="4" fill="#daa520" opacity="0.8"/>
+    <circle cx="100" cy="142" r="4" fill="#fff8dc" opacity="0.8"/>
+  </g>
+
+  <!-- Golden Dragon wrapping around the sphere -->
+  <g filter="url(#glow)">
+    <!-- Dragon body - coiled around the sphere -->
+    <path d="
+      M 60,18
+      C 50,15 35,20 30,35
+      C 25,50 20,65 22,80
+      C 24,95 20,110 18,120
+      C 16,135 20,155 30,165
+      C 40,175 55,182 70,185
+      C 85,188 100,190 115,188
+      C 130,186 145,180 155,172
+      C 165,164 172,150 175,135
+      C 178,120 180,105 178,90
+      C 176,75 170,60 162,50
+      C 154,40 145,35 135,32
+    "
+    fill="none" stroke="#daa520" stroke-width="4" stroke-linecap="round"
+    opacity="0.9"/>
+
+    <!-- Dragon scales along body -->
+    <path d="M 30,35 C 28,40 26,50 24,58" fill="none" stroke="#b8860b" stroke-width="1.5" opacity="0.6"/>
+    <path d="M 22,80 C 20,88 19,96 18,104" fill="none" stroke="#b8860b" stroke-width="1.5" opacity="0.6"/>
+    <path d="M 20,140 C 24,150 30,158 38,164" fill="none" stroke="#b8860b" stroke-width="1.5" opacity="0.6"/>
+    <path d="M 155,172 C 162,165 168,155 173,142" fill="none" stroke="#b8860b" stroke-width="1.5" opacity="0.6"/>
+    <path d="M 178,90 C 176,80 172,70 166,60" fill="none" stroke="#b8860b" stroke-width="1.5" opacity="0.6"/>
+
+    <!-- Dragon head (top right area) -->
+    <path d="
+      M 135,32
+      C 138,28 142,22 148,20
+      C 154,18 158,22 156,28
+      C 154,34 148,36 142,35
+      L 135,32
+    "
+    fill="#daa520" stroke="#b8860b" stroke-width="1"/>
+
+    <!-- Dragon eye -->
+    <circle cx="147" cy="26" r="2" fill="#ff4500"/>
+    <circle cx="147.5" cy="25.5" r="0.8" fill="#fff"/>
+
+    <!-- Dragon horns -->
+    <path d="M 148,20 L 152,12 L 150,19" fill="#b8860b" stroke="#daa520" stroke-width="0.5"/>
+    <path d="M 145,19 L 146,10 L 147,18" fill="#b8860b" stroke="#daa520" stroke-width="0.5"/>
+
+    <!-- Dragon whiskers -->
+    <path d="M 156,28 C 162,26 168,24 172,20" fill="none" stroke="#daa520" stroke-width="0.8" opacity="0.7"/>
+    <path d="M 156,30 C 162,30 168,32 172,35" fill="none" stroke="#daa520" stroke-width="0.8" opacity="0.7"/>
+
+    <!-- Dragon tail (bottom, curling) -->
+    <path d="
+      M 60,18
+      C 65,12 70,8 75,10
+      C 80,12 78,18 73,20
+      C 68,22 63,20 60,18
+    "
+    fill="none" stroke="#daa520" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Tail spike -->
+    <path d="M 75,10 L 82,6 L 78,12" fill="#daa520" stroke="#b8860b" stroke-width="0.5"/>
+  </g>
+
+  <!-- Zodiac ring (faint) -->
+  <circle cx="100" cy="100" r="88" fill="none" stroke="#daa520" stroke-width="0.3" opacity="0.3" stroke-dasharray="4,8"/>
+</svg>

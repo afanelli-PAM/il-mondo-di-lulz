@@ -1,0 +1,162 @@
+<%- include('partials/header') %>
+
+<section class="natal-chart-section">
+  <div class="container">
+    <div class="chart-header">
+      <h1>Il Tuo Tema Natale</h1>
+      <p>La mappa celeste al momento della tua nascita</p>
+    </div>
+
+    <div class="chart-grid">
+      <!-- Info Principale -->
+      <div class="chart-card chart-main">
+        <h2><%= profilo.nome %> <%= profilo.cognome %></h2>
+        <div class="chart-info-grid">
+          <div class="info-item">
+            <span class="info-label">Data di Nascita</span>
+            <span class="info-value"><%= new Date(profilo.data_nascita).toLocaleDateString('it-IT') %></span>
+          </div>
+          <% if (profilo.ora_nascita) { %>
+          <div class="info-item">
+            <span class="info-label">Ora di Nascita</span>
+            <span class="info-value"><%= profilo.ora_nascita %></span>
+          </div>
+          <% } %>
+          <div class="info-item">
+            <span class="info-label">Luogo di Nascita</span>
+            <span class="info-value"><%= profilo.luogo_nascita %></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Segno Solare</span>
+            <span class="info-value zodiac-large"><%= dati.segnoSolare.simbolo %> <%= dati.segnoSolare.nome %></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Ascendente</span>
+            <span class="info-value zodiac-large"><%= dati.ascendente.simbolo %> <%= dati.ascendente.nome %></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Elemento</span>
+            <span class="info-value"><%= dati.segnoSolare.elemento %></span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Pianeta Governante</span>
+            <span class="info-value"><%= dati.segnoSolare.pianeta %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Posizioni Planetarie -->
+      <div class="chart-card">
+        <h3>Posizioni Planetarie</h3>
+        <table class="planet-table">
+          <thead>
+            <tr>
+              <th>Pianeta</th>
+              <th>Segno</th>
+              <th>Gradi</th>
+              <th>Casa</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% dati.posizioni.forEach(function(pos) { %>
+            <tr>
+              <td><strong><%= pos.pianeta %></strong></td>
+              <td><%= pos.segno.simbolo %> <%= pos.segno.nome %></td>
+              <td><%= pos.gradi %>&deg;</td>
+              <td><%= pos.casa %></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Aspetti -->
+      <% if (dati.aspetti && dati.aspetti.length > 0) { %>
+      <div class="chart-card">
+        <h3>Aspetti Principali</h3>
+        <div class="aspects-list">
+          <% dati.aspetti.forEach(function(asp) { %>
+          <div class="aspect-item">
+            <span class="aspect-planets"><%= asp.pianeta1 %> &harr; <%= asp.pianeta2 %></span>
+            <span class="aspect-type"><%= asp.tipo %></span>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- Interpretazione AI -->
+    <div class="interpretation-section">
+      <h2>Interpretazione del Tema Natale</h2>
+
+      <% if (interpretazione) { %>
+        <div class="interpretation-text">
+          <%- interpretazione.replace(/\n/g, '<br>') %>
+        </div>
+        <% if (profilo.tema_natale_generato_il) { %>
+          <small class="gen-date">Generato il <%= new Date(profilo.tema_natale_generato_il + 'Z').toLocaleString('it-IT') %></small>
+        <% } %>
+      <% } else { %>
+        <div class="interpretation-empty">
+          <p>La tua interpretazione personalizzata non &egrave; ancora stata generata.</p>
+          <p>Clicca il pulsante qui sotto per ricevere un'analisi dettagliata basata sulla tua mappa astrale e sul profilo che hai compilato durante la registrazione.</p>
+          <form id="genera-tema-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="btn btn-primary btn-large" id="genera-tema-btn">
+              <span class="btn-text">Genera Interpretazione</span>
+              <span class="btn-loading" style="display:none;">Generazione in corso... &#x23F3;</span>
+            </button>
+          </form>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var form = document.getElementById('genera-tema-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    var btn = document.getElementById('genera-tema-btn');
+    var btnText = btn.querySelector('.btn-text');
+    var btnLoading = btn.querySelector('.btn-loading');
+
+    btn.disabled = true;
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'inline';
+
+    try {
+      var csrf = form.querySelector('[name=_csrf]').value;
+      var res = await fetch('/profilo/genera-tema', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrf
+        },
+        body: JSON.stringify({})
+      });
+
+      var data = await res.json();
+      if (data.ok) {
+        location.reload();
+      } else {
+        alert(data.error || 'Errore nella generazione.');
+        btn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+      }
+    } catch (err) {
+      alert('Errore di connessione. Riprova.');
+      btn.disabled = false;
+      btnText.style.display = 'inline';
+      btnLoading.style.display = 'none';
+    }
+  });
+});
+</script>
+
+<%- include('partials/footer') %>

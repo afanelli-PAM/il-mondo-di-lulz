@@ -1,0 +1,42 @@
+<%- include('partials/header') %>
+
+<section class="form-section">
+  <div class="container container-xs">
+    <div class="form-header">
+      <h1>Cancella il Tuo Account</h1>
+      <p>Questa azione &egrave; <strong>irreversibile</strong>. Tutti i tuoi dati personali, il tema natale e lo storico dei consulti verranno cancellati definitivamente.</p>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert-error" role="alert"><%= error %></div>
+    <% } %>
+
+    <div class="warning-box">
+      <h3>Cosa verr&agrave; cancellato:</h3>
+      <ul>
+        <li>Il tuo profilo e tutti i dati personali</li>
+        <li>Le risposte dell'intervista</li>
+        <li>Il tema natale generato</li>
+        <li>Lo storico delle domande all'oracolo</li>
+      </ul>
+      <p>Prima di procedere, puoi <a href="/gdpr/i-miei-dati">esportare i tuoi dati</a>.</p>
+    </div>
+
+    <form method="POST" action="/gdpr/cancella-account">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <div class="form-group">
+        <label for="conferma">Scrivi <strong>CANCELLA</strong> per confermare</label>
+        <input type="text" id="conferma" name="conferma" required
+               placeholder="Scrivi CANCELLA" autocomplete="off">
+      </div>
+
+      <div class="form-actions">
+        <a href="/profilo" class="btn btn-secondary">Annulla</a>
+        <button type="submit" class="btn btn-danger">Cancella Definitivamente</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

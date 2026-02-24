@@ -1,0 +1,44 @@
+<%- include('partials/header') %>
+
+<section class="oracle-section">
+  <div class="container container-narrow">
+    <div class="oracle-header">
+      <div class="oracle-icon">&#x1F52E;</div>
+      <h1>Chiedi all'Oracolo</h1>
+      <p>Fai una domanda all'oracolo e, se le condizioni astrali permetteranno di conoscere una risposta certa, ti invieremo un responso.</p>
+    </div>
+
+    <div class="oracle-chat" id="oracle-chat">
+      <% messaggi.forEach(function(msg) { %>
+        <div class="chat-message user-message">
+          <div class="chat-bubble"><%= msg.domanda %></div>
+          <small><%= new Date(msg.created_at + 'Z').toLocaleString('it-IT') %></small>
+        </div>
+        <% if (msg.risposta) { %>
+        <div class="chat-message oracle-message">
+          <div class="chat-avatar">&#x1F52E;</div>
+          <div class="chat-bubble"><%= msg.risposta %></div>
+        </div>
+        <% } %>
+      <% }) %>
+    </div>
+
+    <form id="oracle-form" class="oracle-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="oracle-input-group">
+        <textarea id="oracle-input" name="domanda" rows="2"
+                  placeholder="Scrivi la tua domanda all'oracolo..."
+                  maxlength="1000" required></textarea>
+        <button type="submit" class="btn btn-primary" id="oracle-submit">
+          <span class="btn-text">Invia</span>
+          <span class="btn-loading" style="display:none;">&#x23F3;</span>
+        </button>
+      </div>
+      <small class="char-count"><span id="char-count">0</span>/1000</small>
+    </form>
+  </div>
+</section>
+
+<script src="/js/oracle.js"></script>
+
+<%- include('partials/footer') %>

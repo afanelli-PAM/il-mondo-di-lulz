@@ -1,0 +1,65 @@
+<%- include('partials/header') %>
+
+<section class="dashboard-section">
+  <div class="container">
+    <div class="dashboard-header">
+      <h1>Benvenuto, <%= profilo.nome %></h1>
+      <p class="zodiac-badge"><%= profilo.segno_zodiacale %></p>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="dash-card">
+        <div class="dash-card-icon">&#x2B50;</div>
+        <h3>Il Tuo Tema Natale</h3>
+        <p>
+          <% if (profilo.tema_natale) { %>
+            Il tuo tema natale &egrave; stato generato. Consulta la mappa delle stelle che ti accompagna dalla nascita.
+          <% } else { %>
+            Il tuo tema natale non &egrave; ancora stato generato. Scopri cosa dicono le stelle su di te.
+          <% } %>
+        </p>
+        <a href="/profilo/tema-natale" class="btn btn-primary">
+          <%= profilo.tema_natale ? 'Consulta il Tema' : 'Genera il Tema Natale' %>
+        </a>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-icon">&#x1F52E;</div>
+        <h3>Chiedi all'Oracolo</h3>
+        <p>Fai una domanda all'oracolo e ricevi un responso personalizzato basato sulla tua mappa astrale.</p>
+        <a href="/oracolo" class="btn btn-primary">Chiedi all'Oracolo</a>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-icon">&#x1F510;</div>
+        <h3>I Tuoi Dati</h3>
+        <p>Gestisci i tuoi dati personali in conformit&agrave; con il GDPR. Esporta o cancella il tuo account.</p>
+        <div class="dash-card-actions">
+          <a href="/gdpr/i-miei-dati" class="btn btn-secondary">Esporta Dati</a>
+          <a href="/gdpr/cancella-account" class="btn btn-danger-outline">Cancella Account</a>
+        </div>
+      </div>
+    </div>
+
+    <% if (messaggiRecenti && messaggiRecenti.length > 0) { %>
+    <div class="recent-messages">
+      <h2>Ultimi Consulti dell'Oracolo</h2>
+      <div class="messages-list">
+        <% messaggiRecenti.forEach(function(msg) { %>
+          <div class="message-item">
+            <div class="message-question">
+              <strong>Tu:</strong> <%= msg.domanda %>
+            </div>
+            <div class="message-answer">
+              <strong>Oracolo:</strong> <%= msg.risposta %>
+            </div>
+            <small class="message-date"><%= new Date(msg.created_at + 'Z').toLocaleString('it-IT') %></small>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
