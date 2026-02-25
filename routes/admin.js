@@ -35,13 +35,67 @@ router.get('/dashboard', requireAdmin, (req, res) => {
     const userCount = prepare('SELECT COUNT(*) as count FROM users WHERE deleted_at IS NULL').get().count;
     const unverifiedCount = prepare('SELECT COUNT(*) as count FROM users WHERE deleted_at IS NULL AND email_verified = 0').get().count;
     const oracleCount = prepare('SELECT COUNT(*) as count FROM oracle_messages').get().count;
+
+    // ── Statistiche visite ──
+    const visitsToday = prepare(
+      "SELECT COUNT(*) as count FROM page_views WHERE page != 'download:ebook' AND created_at >= date('now')"
+    ).get().count;
+    const visitsWeek = prepare(
+      "SELECT COUNT(*) as count FROM page_views WHERE page != 'download:ebook' AND created_at >= date('now', '-7 days')"
+    ).get().count;
+    const visitsTotal = prepare(
+      "SELECT COUNT(*) as count FROM page_views WHERE page != 'download:ebook'"
+    ).get().count;
+    const uniqueVisitorsToday = prepare(
+      "SELECT COUNT(DISTINCT ip_address) as count FROM page_views WHERE page != 'download:ebook' AND created_at >= date('now')"
+    ).get().count;
+    const uniqueVisitorsWeek = prepare(
+      "SELECT COUNT(DISTINCT ip_address) as count FROM page_views WHERE page != 'download:ebook' AND created_at >= date('now', '-7 days')"
+    ).get().count;
+    const uniqueVisitorsTotal = prepare(
+      "SELECT COUNT(DISTINCT ip_address) as count FROM page_views WHERE page != 'download:ebook'"
+    ).get().count;
+
+    // ── Statistiche download ebook ──
+    const downloadsToday = prepare(
+      "SELECT COUNT(*) as count FROM page_views WHERE page = 'download:ebook' AND created_at >= date('now')"
+    ).get().count;
+    const downloadsWeek = prepare(
+      "SELECT COUNT(*) as count FROM page_views WHERE page = 'download:ebook' AND created_at >= date('now', '-7 days')"
+    ).get().count;
+    const downloadsTotal = prepare(
+      "SELECT COUNT(*) as count FROM page_views WHERE page = 'download:ebook'"
+    ).get().count;
+
+    // ── Visite ultimi 7 giorni (per grafico) ──
+    const visitsByDay = prepare(`
+      SELECT date(created_at) as giorno, COUNT(*) as visite, COUNT(DISTINCT ip_address) as unici
+      FROM page_views
+      WHERE page != 'download:ebook' AND created_at >= date('now', '-6 days')
+      GROUP BY date(created_at) ORDER BY giorno ASC
+    `).all();
+
+    // ── Pagine più viste ──
+    const topPages = prepare(`
+      SELECT page, COUNT(*) as visite
+      FROM page_views WHERE page != 'download:ebook'
+      GROUP BY page ORDER BY visite DESC LIMIT 10
+    `).all();
+
     const latestUsers = prepare(
       'SELECT id, nome, email, email_verified, created_at FROM users WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 5'
     ).all();
 
     res.render('admin/dashboard', {
       title: 'Admin Dashboard',
-      stats: { userCount, unverifiedCount, oracleCount },
+      stats: {
+        userCount, unverifiedCount, oracleCount,
+        visitsToday, visitsWeek, visitsTotal,
+        uniqueVisitorsToday, uniqueVisitorsWeek, uniqueVisitorsTotal,
+        downloadsToday, downloadsWeek, downloadsTotal,
+      },
+      visitsByDay,
+      topPages,
       latestUsers,
     });
   } catch (err) {

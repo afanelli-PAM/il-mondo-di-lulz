@@ -109,6 +109,24 @@ async function start() {
     next();
   });
 
+  // Page-view tracking (lightweight, only HTML pages — not static/API/admin)
+  app.use((req, res, next) => {
+    if (req.method === 'GET'
+        && !req.path.startsWith('/admin')
+        && !req.path.startsWith('/api/')
+        && !req.path.match(/\.(css|js|svg|png|jpg|jpeg|gif|ico|epub|woff2?)$/)) {
+      try {
+        const db = getDb();
+        db.run(
+          `INSERT INTO page_views (page, ip_address, session_id, user_id, created_at)
+           VALUES (?, ?, ?, ?, datetime('now'))`,
+          [req.path, req.ip, req.sessionID || null, req.session?.userId || null]
+        );
+      } catch { /* non bloccare la request se il tracking fallisce */ }
+    }
+    next();
+  });
+
   // Routes
   const authRoutes = require('./routes/auth');
   const oracleRoutes = require('./routes/oracle');
@@ -121,6 +139,20 @@ async function start() {
   app.use('/profilo', doubleCsrfProtection, profileRoutes);
   app.use('/gdpr', doubleCsrfProtection, gdprRoutes);
   app.use('/admin', doubleCsrfProtection, adminRoutes);
+
+  // Tracked ebook download
+  app.get('/download/ebook', (req, res) => {
+    try {
+      const db = getDb();
+      db.run(
+        `INSERT INTO page_views (page, ip_address, session_id, user_id, created_at)
+         VALUES ('download:ebook', ?, ?, ?, datetime('now'))`,
+        [req.ip, req.sessionID || null, req.session?.userId || null]
+      );
+      saveDb();
+    } catch { /* ignore */ }
+    res.download(path.join(__dirname, 'public', 'downloads', 'IlMondoDiLulz.epub'), 'IlMondoDiLulz.epub');
+  });
 
   // Homepage
   app.get('/', (req, res) => {

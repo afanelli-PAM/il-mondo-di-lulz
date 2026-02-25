@@ -111,6 +111,17 @@ function initSchema() {
       expired TEXT NOT NULL
     )
   `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS page_views (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      page TEXT NOT NULL,
+      ip_address TEXT,
+      session_id TEXT,
+      user_id INTEGER,
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
 }
 
 // Migrations: ADD COLUMN statements are idempotent via try/catch
