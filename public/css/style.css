@@ -119,18 +119,40 @@ img { max-width: 100%; height: auto; }
 .mobile-menu-btn {
   display: none;
   flex-direction: column;
-  gap: 4px;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.7rem;
+  min-width: 44px;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  z-index: 101;
 }
 
 .mobile-menu-btn span {
+  display: block;
   width: 24px;
   height: 2px;
   background: var(--gold);
   border-radius: 2px;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.mobile-menu-btn.active span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.mobile-menu-btn.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-btn.active span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
 /* --- Buttons --- */
@@ -1147,9 +1169,19 @@ legend {
     flex-direction: column;
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border);
+    gap: 0.5rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
   }
 
   .nav-links.open { display: flex; }
+
+  .nav-links a {
+    padding: 0.6rem 0;
+    font-size: 1rem !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .nav-links a:last-child { border-bottom: none; }
 
   .mobile-menu-btn { display: flex; }
 

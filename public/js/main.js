@@ -3,9 +3,43 @@
    ============================================ */
 
 document.addEventListener('DOMContentLoaded', function () {
+  // --- Mobile Menu ---
+  initMobileMenu();
+
   // --- Cookie Banner ---
   initCookieBanner();
 });
+
+function initMobileMenu() {
+  var btn = document.getElementById('mobile-menu-toggle');
+  var nav = document.querySelector('.nav-links');
+  if (!btn || !nav) return;
+
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var isOpen = nav.classList.toggle('open');
+    btn.classList.toggle('active', isOpen);
+    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+
+  // Chiudi il menu quando si clicca su un link
+  nav.querySelectorAll('a').forEach(function (link) {
+    link.addEventListener('click', function () {
+      nav.classList.remove('open');
+      btn.classList.remove('active');
+      btn.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Chiudi il menu quando si clicca fuori
+  document.addEventListener('click', function (e) {
+    if (!nav.contains(e.target) && !btn.contains(e.target)) {
+      nav.classList.remove('open');
+      btn.classList.remove('active');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
 
 function initCookieBanner() {
   var acceptBtn = document.getElementById('cookie-accept');
