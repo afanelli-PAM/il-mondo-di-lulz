@@ -1,4 +1,4 @@
 node_modules/
-# data/*.db (Rimosso per richiesta utente)
+data/*.db
 .env
 *.log
