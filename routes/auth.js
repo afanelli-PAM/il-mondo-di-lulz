@@ -92,7 +92,12 @@ router.post('/register', guestOnly, async (req, res) => {
     );
 
     const verificationUrl = `${BASE_URL()}/auth/verifica-email?token=${verificationToken}`;
-    await sendVerificationEmail(normalizedEmail, nome.trim(), verificationUrl);
+
+    // Fire-and-forget: l'utente è già creato nel DB, non blocchiamo il redirect
+    // se l'SMTP fallisce (l'utente potrà cliccare "Reinvia" dalla pagina di login).
+    sendVerificationEmail(normalizedEmail, nome.trim(), verificationUrl).catch((err) => {
+      console.error('[Email] Errore invio verifica a', normalizedEmail, err.message);
+    });
 
     return res.redirect(`/auth/verifica-email-inviata?email=${encodeURIComponent(normalizedEmail)}`);
   } catch (err) {

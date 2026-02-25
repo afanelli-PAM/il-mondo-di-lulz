@@ -9,10 +9,15 @@ function getTransport() {
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT || '587', 10),
     secure: process.env.SMTP_SECURE === 'true',
+    // Force IPv4: Railway (and many PaaS) cannot reach SMTP servers over IPv6,
+    // causing ENETUNREACH / ETIMEDOUT when dns resolves to an AAAA record first.
+    family: 4,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    connectionTimeout: 10000, // 10s connect timeout
+    socketTimeout: 15000,     // 15s socket idle timeout
   });
 }
 
