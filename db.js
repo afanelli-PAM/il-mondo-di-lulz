@@ -2,7 +2,10 @@ const initSqlJs = require('sql.js');
 const fs = require('fs');
 const path = require('path');
 
-const DB_PATH = path.join(__dirname, 'data', 'lulz.db');
+// DB_PATH can be overridden via env var to point to a Railway persistent volume
+// (e.g. DB_PATH=/app/data/lulz.db set in Railway dashboard alongside a volume
+// mounted at /app/data — this survives redeployments).
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data', 'lulz.db');
 
 let db;
 let initPromise;
@@ -11,11 +14,14 @@ function getDbAsync() {
   if (!initPromise) {
     initPromise = (async () => {
       const SQL = await initSqlJs();
+      // Ensure the directory exists (needed on Railway and fresh environments
+      // where data/ is not present in the deployed repository).
+      fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
       let data;
       try {
         data = fs.readFileSync(DB_PATH);
       } catch {
-        // DB doesn't exist yet
+        // DB doesn't exist yet — will be created fresh
       }
       db = data ? new SQL.Database(data) : new SQL.Database();
       initSchema();
