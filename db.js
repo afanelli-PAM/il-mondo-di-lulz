@@ -2,9 +2,14 @@ const initSqlJs = require('sql.js');
 const fs = require('fs');
 const path = require('path');
 
-// DB_PATH can be overridden via env var to point to a Railway persistent volume
-// (e.g. DB_PATH=/app/data/lulz.db set in Railway dashboard alongside a volume
-// mounted at /app/data — this survives redeployments).
+// DB_PATH is read from the environment variable so Railway can point it at a
+// persistent volume. Example Railway config:
+//   Volume mount path : /data
+//   DB_PATH env var   : /data/lulz.db
+//
+// NOTE: sql.js is an in-memory SQLite engine — on startup it reads the file
+// from DB_PATH into RAM, then saveDb() flushes it back to disk every 30 s and
+// on graceful shutdown. The Railway volume at /data therefore survives redeploys.
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data', 'lulz.db');
 
 let db;
