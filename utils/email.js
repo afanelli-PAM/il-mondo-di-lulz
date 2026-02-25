@@ -5,19 +5,25 @@ const FROM_ADDR = process.env.SMTP_USER || 'noreply@ilmondodilulz.com';
 
 function getTransport() {
   if (!process.env.SMTP_HOST) return null;
+  const port = parseInt(process.env.SMTP_PORT || '465', 10);
+  // secure = true for port 465 (direct TLS), false for 587 (STARTTLS).
+  // Default to true because Railway (and many PaaS) blocks port 587.
+  const secure = process.env.SMTP_SECURE != null
+    ? process.env.SMTP_SECURE === 'true'
+    : port === 465;
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || '587', 10),
-    secure: process.env.SMTP_SECURE === 'true',
-    // Force IPv4: Railway (and many PaaS) cannot reach SMTP servers over IPv6,
-    // causing ENETUNREACH / ETIMEDOUT when dns resolves to an AAAA record first.
+    port,
+    secure,
+    // Force IPv4: Railway cannot reach SMTP servers over IPv6,
+    // causing ENETUNREACH when dns resolves to an AAAA record first.
     family: 4,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-    connectionTimeout: 10000, // 10s connect timeout
-    socketTimeout: 15000,     // 15s socket idle timeout
+    connectionTimeout: 10000,
+    socketTimeout: 15000,
   });
 }
 

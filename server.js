@@ -189,6 +189,12 @@ async function start() {
   };
   process.on('SIGTERM', shutdown);
   process.on('SIGINT', shutdown);
+
+  // Prevent unhandled promise rejections (e.g. SMTP failures) from crashing
+  // the entire process. Log them and keep the server alive.
+  process.on('unhandledRejection', (reason) => {
+    console.error('[WARN] Unhandled promise rejection:', reason);
+  });
 }
 
 start().catch((err) => {

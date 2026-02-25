@@ -165,7 +165,9 @@ router.post('/reinvia-verifica', async (req, res) => {
     `).run(verificationToken, tokenExpires, user.id);
 
     const verificationUrl = `${BASE_URL()}/auth/verifica-email?token=${verificationToken}`;
-    await sendVerificationEmail(email, user.nome, verificationUrl);
+    sendVerificationEmail(email, user.nome, verificationUrl).catch((err) => {
+      console.error('[Email] Errore reinvio verifica a', email, err.message);
+    });
   }
 
   // Risposta generica (non rivela se l'email esiste nel sistema)
