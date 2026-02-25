@@ -25,6 +25,7 @@ function getDbAsync() {
       }
       db = data ? new SQL.Database(data) : new SQL.Database();
       initSchema();
+      runMigrations();
       // Auto-save every 30 seconds
       setInterval(saveDb, 30000);
       return db;
@@ -105,6 +106,19 @@ function initSchema() {
       expired TEXT NOT NULL
     )
   `);
+}
+
+// Migrations: ADD COLUMN statements are idempotent via try/catch
+// (SQLite does not support IF NOT EXISTS for ALTER TABLE ADD COLUMN).
+function runMigrations() {
+  const migrations = [
+    'ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0',
+    'ALTER TABLE users ADD COLUMN verification_token TEXT',
+    'ALTER TABLE users ADD COLUMN verification_token_expires TEXT',
+  ];
+  for (const sql of migrations) {
+    try { db.run(sql); } catch { /* column already exists — skip */ }
+  }
 }
 
 function closeDb() {

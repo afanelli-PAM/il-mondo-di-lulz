@@ -7,8 +7,32 @@
       <p>Bentornato nel Mondo di Lulz. L'oracolo ti attende.</p>
     </div>
 
+    <% if (info) { %>
+      <div role="alert" style="background:rgba(76,175,80,0.15);border:1px solid #4caf50;color:#a5d6a7;
+                               padding:0.8rem 1.2rem;border-radius:6px;margin-bottom:1rem;">
+        <%= info %>
+      </div>
+    <% } %>
+
     <% if (error) { %>
       <div class="alert alert-error" role="alert"><%= error %></div>
+    <% } %>
+
+    <% if (needsVerification) { %>
+      <div class="dash-card" style="padding:1.2rem;margin-bottom:1.5rem;border-color:#ff9800;">
+        <p style="color:#ff9800;font-weight:600;margin-bottom:0.5rem;">&#9888; Email non ancora verificata</p>
+        <p style="font-size:0.9rem;margin-bottom:1rem;">
+          Il tuo account è stato creato ma non hai ancora confermato l'indirizzo email.<br>
+          Controlla la tua casella di posta (incluso lo spam).
+        </p>
+        <form action="/auth/reinvia-verifica" method="POST">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="email" value="<%= pendingEmail %>">
+          <button type="submit" class="btn btn-secondary" style="font-size:0.88rem;padding:0.4rem 0.9rem;">
+            &#8635; Reinvia email di verifica
+          </button>
+        </form>
+      </div>
     <% } %>
 
     <form method="POST" action="/auth/login" class="login-form" novalidate>

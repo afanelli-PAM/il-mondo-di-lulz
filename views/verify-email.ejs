@@ -1,0 +1,24 @@
+<%- include('partials/header') %>
+
+<section class="form-section">
+  <div class="container container-xs">
+    <div class="form-header">
+      <div class="oracle-icon"><%= success ? '✅' : '❌' %></div>
+      <h1><%= success ? 'Email Verificata!' : 'Verifica Fallita' %></h1>
+    </div>
+
+    <div class="dash-card" style="text-align:center;padding:2rem;">
+      <p style="font-size:1.05rem;"><%- message %></p>
+
+      <div style="margin-top:1.5rem;">
+        <% if (success) { %>
+          <a href="/auth/login?verified=1" class="btn btn-primary btn-large">Accedi ora</a>
+        <% } else { %>
+          <a href="/auth/register" class="btn btn-secondary">Registrati di nuovo</a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

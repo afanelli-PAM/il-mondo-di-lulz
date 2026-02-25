@@ -1,0 +1,45 @@
+<%- include('partials/header') %>
+
+<section class="form-section">
+  <div class="container container-xs">
+    <div class="form-header">
+      <div class="oracle-icon">✉️</div>
+      <h1>Controlla la tua Email</h1>
+      <% if (resent) { %>
+        <p>Un nuovo link di verifica è stato inviato a <strong><%= email %></strong>.</p>
+      <% } else { %>
+        <p>Abbiamo inviato un link di verifica a <strong><%= email %></strong>.</p>
+      <% } %>
+    </div>
+
+    <div class="dash-card" style="text-align:center;padding:2rem;">
+      <p style="font-size:1.05rem;margin-bottom:1rem;">
+        Clicca sul link nell'email per attivare il tuo account e accedere al portale.
+      </p>
+      <p style="color:var(--text-muted);font-size:0.9rem;">
+        Il link è valido per <strong>24 ore</strong>.<br>
+        Controlla anche la cartella <em>Spam</em> o <em>Posta indesiderata</em>.
+      </p>
+
+      <hr style="border:none;border-top:1px solid #2a2a3a;margin:1.5rem 0;">
+
+      <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem;">
+        Non hai ricevuto l'email?
+      </p>
+
+      <form action="/auth/reinvia-verifica" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="email" value="<%= email %>">
+        <button type="submit" class="btn btn-secondary">
+          &#8635; Reinvia il link di verifica
+        </button>
+      </form>
+    </div>
+
+    <div class="form-footer-text" style="margin-top:1.5rem;">
+      <a href="/auth/login">&larr; Torna al Login</a>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

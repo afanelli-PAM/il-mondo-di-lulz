@@ -120,7 +120,7 @@ async function start() {
   app.use('/oracolo', oracleLimiter, doubleCsrfProtection, oracleRoutes);
   app.use('/profilo', doubleCsrfProtection, profileRoutes);
   app.use('/gdpr', doubleCsrfProtection, gdprRoutes);
-  app.use('/admin', adminRoutes);
+  app.use('/admin', doubleCsrfProtection, adminRoutes);
 
   // Homepage
   app.get('/', (req, res) => {

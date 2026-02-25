@@ -7,6 +7,12 @@
                 <p>Lista completa degli iscritti al Mondo di Lulz</p>
             </div>
 
+            <% if (success) { %>
+              <div style="margin-bottom:1.5rem;background:rgba(76,175,80,0.15);border:1px solid #4caf50;color:#a5d6a7;padding:0.8rem 1.2rem;border-radius:6px;">
+                <%= success %>
+              </div>
+            <% } %>
+
             <div class="chart-card">
                 <table class="planet-table">
                     <thead>
@@ -14,37 +20,47 @@
                             <th>Nome</th>
                             <th>Email</th>
                             <th>Segno</th>
+                            <th>Stato Email</th>
                             <th>Registrato il</th>
-                            <th>Azione</th>
+                            <th>Azioni</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <% users.forEach(u=> { %>
+                        <% users.forEach(u => { %>
                             <tr>
+                                <td><%= u.nome %> <%= u.cognome %></td>
+                                <td><%= u.email %></td>
+                                <td><%= u.segno_zodiacale || 'N/D' %></td>
                                 <td>
-                                    <%= u.nome %>
-                                        <%= u.cognome %>
+                                  <% if (u.email_verified) { %>
+                                    <span style="color:#4caf50;font-size:0.82rem;font-weight:600;">&#10003; Verificato</span>
+                                  <% } else { %>
+                                    <span style="color:#ff9800;font-size:0.82rem;font-weight:600;">&#9888; Non verificato</span>
+                                  <% } %>
                                 </td>
-                                <td>
-                                    <%= u.email %>
-                                </td>
-                                <td>
-                                    <%= u.segno_zodiacale || 'N/D' %>
-                                </td>
-                                <td>
-                                    <%= new Date(u.created_at).toLocaleDateString('it-IT') %>
-                                </td>
-                                <td>
+                                <td><%= new Date(u.created_at).toLocaleDateString('it-IT') %></td>
+                                <td style="display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;">
                                     <a href="/admin/users/<%= u.id %>" class="btn btn-secondary"
-                                        style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">Vedi Attività</a>
+                                        style="padding:0.25rem 0.6rem;font-size:0.78rem;">Vedi</a>
+
+                                    <form action="/admin/users/<%= u.id %>/delete" method="POST"
+                                          onsubmit="return confirm('Eliminare definitivamente l\'utente <%= u.nome %> ?\nL\'operazione è irreversibile.')">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        <button type="submit"
+                                            style="padding:0.25rem 0.65rem;font-size:0.78rem;background:#6b1212;
+                                                   color:#ffcccc;border:1px solid #9b2020;cursor:pointer;
+                                                   border-radius:4px;font-family:inherit;">
+                                            &#10005; Elimina
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
-                            <% }); %>
+                        <% }); %>
                     </tbody>
                 </table>
             </div>
 
-            <div class="form-actions" style="margin-top: 2rem;">
+            <div class="form-actions" style="margin-top:2rem;">
                 <a href="/admin/dashboard" class="btn btn-secondary">&larr; Torna alla Dashboard</a>
             </div>
         </div>
