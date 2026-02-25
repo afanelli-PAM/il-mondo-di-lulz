@@ -12,6 +12,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const isProd = process.env.NODE_ENV === 'production';
 
+// Trust the first reverse proxy hop in production (required for
+// express-rate-limit to read X-Forwarded-For without validation errors,
+// and for secure session cookies behind load balancers / PaaS platforms).
+if (isProd) {
+  app.set('trust proxy', 1);
+}
+
 // View engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
