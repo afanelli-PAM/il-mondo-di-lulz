@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const { prepare } = require('../db');
 const { guestOnly } = require('../middleware/auth');
 const { getSegnoZodiacale } = require('../utils/astrology');
-const { sendVerificationEmail } = require('../utils/email');
+const { sendVerificationEmail, notifyNewRegistration } = require('../utils/email');
 
 const router = express.Router();
 
@@ -97,6 +97,11 @@ router.post('/register', guestOnly, async (req, res) => {
     // se l'SMTP fallisce (l'utente potrà cliccare "Reinvia" dalla pagina di login).
     sendVerificationEmail(normalizedEmail, nome.trim(), verificationUrl).catch((err) => {
       console.error('[Email] Errore invio verifica a', normalizedEmail, err.message);
+    });
+
+    // Notifica admin della nuova registrazione
+    notifyNewRegistration(nome.trim(), cognome.trim(), normalizedEmail, segno.nome).catch((err) => {
+      console.error('[Email] Errore notifica admin (registrazione):', err.message);
     });
 
     return res.redirect(`/auth/verifica-email-inviata?email=${encodeURIComponent(normalizedEmail)}`);

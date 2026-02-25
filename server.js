@@ -109,7 +109,9 @@ async function start() {
     next();
   });
 
-  // Page-view tracking (lightweight, only HTML pages — not static/API/admin)
+  // Page-view tracking + notifica admin primo visitatore
+  const { notifyNewVisitor } = require('./utils/email');
+
   app.use((req, res, next) => {
     if (req.method === 'GET'
         && !req.path.startsWith('/admin')
@@ -123,6 +125,14 @@ async function start() {
           [req.path, req.ip, req.sessionID || null, req.session?.userId || null]
         );
       } catch { /* non bloccare la request se il tracking fallisce */ }
+
+      // Notifica admin al primo accesso di ogni sessione (un'email per visitatore)
+      if (!req.session.adminNotified) {
+        req.session.adminNotified = true; // persiste nella sessione → niente email duplicate
+        notifyNewVisitor(req.path, req.ip).catch((err) => {
+          console.error('[Email] Errore notifica visitatore:', err.message);
+        });
+      }
     }
     next();
   });

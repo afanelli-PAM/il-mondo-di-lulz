@@ -15,10 +15,11 @@
 
 const nodemailer = require('nodemailer');
 
-const FROM_NAME  = 'Il Mondo di Lulz';
-const FROM_EMAIL = process.env.BREVO_SENDER_EMAIL
-                || process.env.SMTP_USER
-                || 'noreply@ilmondodilulz.com';
+const FROM_NAME   = 'Il Mondo di Lulz';
+const FROM_EMAIL  = process.env.BREVO_SENDER_EMAIL
+                 || process.env.SMTP_USER
+                 || 'noreply@ilmondodilulz.com';
+const ADMIN_EMAIL = 'log2ins@gmail.com';
 
 // ---------------------------------------------------------------------------
 // HTML wrapper comune
@@ -151,4 +152,85 @@ async function sendDeletionEmail(to, nome) {
   return sendEmail({ to, subject: 'Il tuo account è stato eliminato – Il Mondo di Lulz', html });
 }
 
-module.exports = { sendVerificationEmail, sendDeletionEmail };
+// ---------------------------------------------------------------------------
+// Notifiche admin (a log2ins@gmail.com)
+// ---------------------------------------------------------------------------
+
+async function notifyNewVisitor(page, ip) {
+  const now = new Date().toLocaleString('it-IT', { timeZone: 'Europe/Rome' });
+  // Oscura gli ultimi due ottetti dell'IP per rispettare la privacy
+  const shortIp = ip
+    ? ip.split('.').slice(0, 2).join('.') + '.x.x'
+    : 'sconosciuto';
+
+  const html = emailBase(`
+    <h3 style="color:#daa520;">🌟 Nuovo visitatore sul sito</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:0.95rem;">
+      <tr>
+        <td style="padding:6px 12px 6px 0;color:#888;white-space:nowrap;">Pagina:</td>
+        <td style="color:#e0d5b0;">${page}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 12px 6px 0;color:#888;white-space:nowrap;">IP (parziale):</td>
+        <td style="color:#e0d5b0;">${shortIp}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 12px 6px 0;color:#888;white-space:nowrap;">Data/ora:</td>
+        <td style="color:#e0d5b0;">${now}</td>
+      </tr>
+    </table>
+  `);
+
+  return sendEmail({
+    to: ADMIN_EMAIL,
+    subject: '🌟 Nuovo visitatore – Il Mondo di Lulz',
+    html,
+  });
+}
+
+async function notifyNewRegistration(nome, cognome, email, segno) {
+  const now = new Date().toLocaleString('it-IT', { timeZone: 'Europe/Rome' });
+  const adminUrl = (process.env.BASE_URL || 'http://localhost:3000').replace(/\/$/, '') + '/admin/users';
+
+  const html = emailBase(`
+    <h3 style="color:#daa520;">✨ Nuovo utente registrato</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:0.95rem;">
+      <tr>
+        <td style="padding:6px 12px 6px 0;color:#888;white-space:nowrap;">Nome:</td>
+        <td style="color:#e0d5b0;">${nome} ${cognome}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 12px 6px 0;color:#888;white-space:nowrap;">Email:</td>
+        <td style="color:#e0d5b0;">${email}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 12px 6px 0;color:#888;white-space:nowrap;">Segno:</td>
+        <td style="color:#e0d5b0;">${segno}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 12px 6px 0;color:#888;white-space:nowrap;">Data/ora:</td>
+        <td style="color:#e0d5b0;">${now}</td>
+      </tr>
+    </table>
+    <div style="text-align:center;margin-top:28px;">
+      <a href="${adminUrl}"
+         style="background:#daa520;color:#0a0a15;padding:11px 26px;border-radius:6px;
+                text-decoration:none;font-weight:bold;display:inline-block;">
+        Vedi nel pannello admin →
+      </a>
+    </div>
+  `);
+
+  return sendEmail({
+    to: ADMIN_EMAIL,
+    subject: '✨ Nuova registrazione – Il Mondo di Lulz',
+    html,
+  });
+}
+
+module.exports = {
+  sendVerificationEmail,
+  sendDeletionEmail,
+  notifyNewVisitor,
+  notifyNewRegistration,
+};
