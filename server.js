@@ -101,11 +101,22 @@ async function start() {
     },
   }));
 
-  // Make CSRF token and user available to all views
+  // Make CSRF token, user and common stats available to all views
   app.use((req, res, next) => {
     res.locals.csrfToken = generateToken(req, res);
     res.locals.user = req.session.userId ? { id: req.session.userId, nome: req.session.userName } : null;
     res.locals.cookieConsent = req.cookies.cookie_consent;
+
+    // Fetch live stats for the banner
+    try {
+      const db = getDb();
+      const userCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE deleted_at IS NULL").get().count;
+      const downloadCount = db.prepare("SELECT COUNT(*) as count FROM page_views WHERE page LIKE 'download:%'").get().count;
+      const visitorCount = db.prepare("SELECT COUNT(DISTINCT ip_address) as count FROM page_views").get().count;
+      res.locals.siteStats = { userCount, downloadCount, visitorCount };
+    } catch (e) {
+      res.locals.siteStats = { userCount: 0, downloadCount: 0, visitorCount: 0 };
+    }
     next();
   });
 
@@ -114,9 +125,9 @@ async function start() {
 
   app.use((req, res, next) => {
     if (req.method === 'GET'
-        && !req.path.startsWith('/admin')
-        && !req.path.startsWith('/api/')
-        && !req.path.match(/\.(css|js|svg|png|jpg|jpeg|gif|ico|epub|woff2?)$/)) {
+      && !req.path.startsWith('/admin')
+      && !req.path.startsWith('/api/')
+      && !req.path.match(/\.(css|js|svg|png|jpg|jpeg|gif|ico|epub|woff2?)$/)) {
       try {
         const db = getDb();
         db.run(
@@ -150,7 +161,7 @@ async function start() {
   app.use('/gdpr', doubleCsrfProtection, gdprRoutes);
   app.use('/admin', doubleCsrfProtection, adminRoutes);
 
-  // Tracked ebook download
+  // Tracked ebook download (EPUB)
   app.get('/download/ebook', (req, res) => {
     try {
       const db = getDb();
@@ -162,6 +173,20 @@ async function start() {
       saveDb();
     } catch { /* ignore */ }
     res.download(path.join(__dirname, 'public', 'downloads', 'IlMondoDiLulz.epub'), 'IlMondoDiLulz.epub');
+  });
+
+  // Tracked ebook download (PDF)
+  app.get('/download/pdf', (req, res) => {
+    try {
+      const db = getDb();
+      db.run(
+        `INSERT INTO page_views (page, ip_address, session_id, user_id, created_at)
+         VALUES ('download:pdf', ?, ?, ?, datetime('now'))`,
+        [req.ip, req.sessionID || null, req.session?.userId || null]
+      );
+      saveDb();
+    } catch { /* ignore */ }
+    res.download(path.join(__dirname, 'public', 'downloads', 'IlMondoDiLulz_Definitivo.pdf'), 'IlMondoDiLulz_Definitivo.pdf');
   });
 
   // Homepage
