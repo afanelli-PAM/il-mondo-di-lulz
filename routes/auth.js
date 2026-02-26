@@ -95,9 +95,12 @@ router.post('/register', guestOnly, async (req, res) => {
 
     // Fire-and-forget: l'utente è già creato nel DB, non blocchiamo il redirect
     // se l'SMTP fallisce (l'utente potrà cliccare "Reinvia" dalla pagina di login).
-    sendVerificationEmail(normalizedEmail, nome.trim(), verificationUrl).catch((err) => {
-      console.error('[Email] Errore invio verifica a', normalizedEmail, err.message);
-    });
+    const regVerify = prepare("SELECT value FROM settings WHERE key = 'registration_verify_email'").get();
+    if (regVerify && regVerify.value === '1') {
+      sendVerificationEmail(normalizedEmail, nome.trim(), verificationUrl).catch((err) => {
+        console.error('[Email] Errore invio verifica a', normalizedEmail, err.message);
+      });
+    }
 
     // Notifica admin della nuova registrazione
     notifyNewRegistration(nome.trim(), cognome.trim(), normalizedEmail, segno.nome).catch((err) => {
@@ -169,10 +172,12 @@ router.post('/reinvia-verifica', async (req, res) => {
       updated_at = datetime('now') WHERE id = ?
     `).run(verificationToken, tokenExpires, user.id);
 
-    const verificationUrl = `${BASE_URL()}/auth/verifica-email?token=${verificationToken}`;
-    sendVerificationEmail(email, user.nome, verificationUrl).catch((err) => {
-      console.error('[Email] Errore reinvio verifica a', email, err.message);
-    });
+    const regVerify = prepare("SELECT value FROM settings WHERE key = 'registration_verify_email'").get();
+    if (regVerify && regVerify.value === '1') {
+      sendVerificationEmail(email, user.nome, verificationUrl).catch((err) => {
+        console.error('[Email] Errore reinvio verifica a', email, err.message);
+      });
+    }
   }
 
   // Risposta generica (non rivela se l'email esiste nel sistema)
@@ -212,8 +217,9 @@ router.post('/login', guestOnly, async (req, res) => {
     return res.render('login', { error: 'Credenziali non valide.', info: null, needsVerification: false, pendingEmail: null });
   }
 
-  // Blocca l'accesso se l'email non è stata verificata
-  if (!user.email_verified) {
+  // Blocca l'accesso se l'email non è stata verificata (solo se la verifica è attiva)
+  const regVerify = prepare("SELECT value FROM settings WHERE key = 'registration_verify_email'").get();
+  if (regVerify && regVerify.value === '1' && !user.email_verified) {
     return res.render('login', {
       error: null,
       info: null,

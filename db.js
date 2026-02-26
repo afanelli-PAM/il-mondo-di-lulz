@@ -30,6 +30,7 @@ function getDbAsync() {
       }
       db = data ? new SQL.Database(data) : new SQL.Database();
       initSchema();
+      initSettings();
       runMigrations();
       // Auto-save every 30 seconds
       setInterval(saveDb, 30000);
@@ -122,6 +123,28 @@ function initSchema() {
       created_at TEXT DEFAULT (datetime('now'))
     )
   `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+}
+
+function initSettings() {
+  const defaults = [
+    { key: 'registration_verify_email', value: '1' },
+    { key: 'admin_notifications', value: '0' }
+  ];
+
+  for (const { key, value } of defaults) {
+    const existing = prepare('SELECT value FROM settings WHERE key = ?').get(key);
+    if (!existing) {
+      prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run(key, value);
+    }
+  }
 }
 
 // Migrations: ADD COLUMN statements are idempotent via try/catch

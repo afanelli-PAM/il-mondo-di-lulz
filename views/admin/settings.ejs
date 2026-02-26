@@ -1,0 +1,135 @@
+<%- include('../partials/header') %>
+
+    <section class="settings-section">
+        <div class="container" style="max-width: 800px;">
+            <div class="dashboard-header">
+                <h1>Impostazioni di Sistema</h1>
+                <p>Gestisci le notifiche email e le politiche di registrazione</p>
+            </div>
+
+            <% if (success) { %>
+                <div class="alert alert-success" style="margin-bottom: 2rem; border-color: var(--gold);">
+                    <%= success %>
+                </div>
+                <% } %>
+
+                    <div class="chart-card">
+                        <form action="/admin/settings" method="POST">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                            <div class="settings-grid" style="display: grid; gap: 2rem;">
+
+                                <!-- Verifica Email -->
+                                <div class="setting-item"
+                                    style="display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; padding-bottom: 2rem; border-bottom: 1px solid #2a2a3a;">
+                                    <div class="setting-info">
+                                        <h3 style="color: var(--gold); margin-bottom: 0.5rem;">Verifica Email alla
+                                            Registrazione</h3>
+                                        <p style="color: var(--text-muted); font-size: 0.9rem;">
+                                            Se disattivata, gli utenti non riceveranno l'email di verifica dopo la
+                                            registrazione,
+                                            ma potranno accedere immediatamente al proprio profilo benché risultino "non
+                                            verificati".
+                                        </p>
+                                    </div>
+                                    <div class="setting-control" style="padding-top: 0.5rem;">
+                                        <label class="switch">
+                                            <input type="checkbox" name="registration_verify_email" value="1"
+                                                <%=settings.registration_verify_email==='1' ? 'checked' : '' %>>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Notifiche Admin -->
+                                <div class="setting-item"
+                                    style="display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; padding-bottom: 2rem; border-bottom: 1px solid #2a2a3a;">
+                                    <div class="setting-info">
+                                        <h3 style="color: var(--gold); margin-bottom: 0.5rem;">Notifiche Email Admin
+                                        </h3>
+                                        <p style="color: var(--text-muted); font-size: 0.9rem;">
+                                            Ricevi un'email per ogni nuovo visitatore o registrazione sul sito.
+                                            (Raccomandato: Disattivato se il sito ha molto traffico).
+                                        </p>
+                                    </div>
+                                    <div class="setting-control" style="padding-top: 0.5rem;">
+                                        <label class="switch">
+                                            <input type="checkbox" name="admin_notifications" value="1"
+                                                <%=settings.admin_notifications==='1' ? 'checked' : '' %>>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div style="margin-top: 3rem; text-align: center;">
+                                <button type="submit" class="btn btn-primary"
+                                    style="padding: 0.8rem 2.5rem; font-size: 1.1rem;">
+                                    Salva Impostazioni
+                                </button>
+                                <a href="/admin/dashboard" class="btn btn-secondary" style="margin-left: 1rem;">Torna
+                                    alla Dashboard</a>
+                            </div>
+                        </form>
+                    </div>
+        </div>
+    </section>
+
+    <style>
+        /* Modern Switch Component */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #2a2a3a;
+            transition: .4s;
+            border: 1px solid var(--gold);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--text-muted);
+            transition: .4s;
+        }
+
+        input:checked+.slider {
+            background-color: var(--gold);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+            background-color: #0a0a15;
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+    </style>
+
+    <%- include('../partials/footer') %>

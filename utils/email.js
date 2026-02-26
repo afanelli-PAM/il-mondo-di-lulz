@@ -2,23 +2,17 @@
  * Email utility — dual provider:
  *
  *  1. BREVO (HTTP API, porta 443) — raccomandato per Railway e PaaS.
- *     Railway blocca tutte le connessioni SMTP in uscita (465/587).
- *     Imposta BREVO_API_KEY per attivarlo.
- *     Sender: l'indirizzo configurato in BREVO_SENDER_EMAIL deve essere
- *     verificato nel dashboard Brevo (Senders & IP > Senders).
+ *  2. SMTP fallback (nodemailer) — funziona in locale con qualsiasi server SMTP.
  *
- *  2. SMTP fallback (nodemailer) — funziona in locale con qualsiasi
- *     server SMTP. Imposta SMTP_HOST per attivarlo.
- *
- *  Se nessuno è configurato, le email vengono loggate in console.
+ * Se nessuno è configurato, le email vengono loggate in console.
  */
 
 const nodemailer = require('nodemailer');
 
-const FROM_NAME   = 'Il Mondo di Lulz';
-const FROM_EMAIL  = process.env.BREVO_SENDER_EMAIL
-                 || process.env.SMTP_USER
-                 || 'noreply@ilmondodilulz.com';
+const FROM_NAME = 'Il Mondo di Lulz';
+const FROM_EMAIL = process.env.BREVO_SENDER_EMAIL
+  || process.env.SMTP_USER
+  || 'noreply@ilmondodilulz.com';
 const ADMIN_EMAIL = 'log2ins@gmail.com';
 
 // ---------------------------------------------------------------------------
@@ -48,13 +42,13 @@ async function sendViaBrevo({ to, subject, html }) {
   const resp = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
-      'accept':       'application/json',
+      'accept': 'application/json',
       'content-type': 'application/json',
-      'api-key':      process.env.BREVO_API_KEY,
+      'api-key': process.env.BREVO_API_KEY,
     },
     body: JSON.stringify({
-      sender:      { name: FROM_NAME, email: FROM_EMAIL },
-      to:          [{ email: to }],
+      sender: { name: FROM_NAME, email: FROM_EMAIL },
+      to: [{ email: to }],
       subject,
       htmlContent: html,
     }),
@@ -72,7 +66,7 @@ async function sendViaBrevo({ to, subject, html }) {
 // ---------------------------------------------------------------------------
 function getSmtpTransport() {
   if (!process.env.SMTP_HOST) return null;
-  const port   = parseInt(process.env.SMTP_PORT || '465', 10);
+  const port = parseInt(process.env.SMTP_PORT || '465', 10);
   const secure = process.env.SMTP_SECURE != null
     ? process.env.SMTP_SECURE === 'true'
     : port === 465;
@@ -83,7 +77,7 @@ function getSmtpTransport() {
     family: 4,
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
     connectionTimeout: 10000,
-    socketTimeout:     15000,
+    socketTimeout: 15000,
   });
 }
 
@@ -157,11 +151,12 @@ async function sendDeletionEmail(to, nome) {
 // ---------------------------------------------------------------------------
 
 async function notifyNewVisitor(page, ip) {
+  const { prepare } = require('../db');
+  const adminNotif = prepare("SELECT value FROM settings WHERE key = 'admin_notifications'").get();
+  if (!adminNotif || adminNotif.value !== '1') return false;
+
   const now = new Date().toLocaleString('it-IT', { timeZone: 'Europe/Rome' });
-  // Oscura gli ultimi due ottetti dell'IP per rispettare la privacy
-  const shortIp = ip
-    ? ip.split('.').slice(0, 2).join('.') + '.x.x'
-    : 'sconosciuto';
+  const shortIp = ip ? ip.split('.').slice(0, 2).join('.') + '.x.x' : 'sconosciuto';
 
   const html = emailBase(`
     <h3 style="color:#daa520;">🌟 Nuovo visitatore sul sito</h3>
@@ -189,6 +184,10 @@ async function notifyNewVisitor(page, ip) {
 }
 
 async function notifyNewRegistration(nome, cognome, email, segno) {
+  const { prepare } = require('../db');
+  const adminNotif = prepare("SELECT value FROM settings WHERE key = 'admin_notifications'").get();
+  if (!adminNotif || adminNotif.value !== '1') return false;
+
   const now = new Date().toLocaleString('it-IT', { timeZone: 'Europe/Rome' });
   const adminUrl = (process.env.BASE_URL || 'http://localhost:3000').replace(/\/$/, '') + '/admin/users';
 

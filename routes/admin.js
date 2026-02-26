@@ -97,6 +97,9 @@ router.get('/dashboard', requireAdmin, (req, res) => {
       visitsByDay,
       topPages,
       latestUsers,
+      // Pass links to the template for rendering
+      adminUsersLink: '/admin/users',
+      adminSettingsLink: '/admin/settings',
     });
   } catch (err) {
     console.error(err);
@@ -169,6 +172,32 @@ router.post('/users/:id/delete', requireAdmin, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send('Errore durante la cancellazione utente');
+  }
+});
+
+// Admin Settings GET
+router.get('/settings', requireAdmin, (req, res) => {
+  try {
+    const rows = prepare('SELECT key, value FROM settings').all();
+    const settings = {};
+    rows.forEach(r => settings[r.key] = r.value);
+    res.render('admin/settings', { title: 'Impostazioni', settings, success: req.query.saved === '1' ? 'Impostazioni salvate correttamente.' : null });
+  } catch (err) {
+    res.status(500).send('Errore nel caricamento impostazioni');
+  }
+});
+
+// Admin Settings POST
+router.post('/settings', requireAdmin, (req, res) => {
+  try {
+    const keys = ['registration_verify_email', 'admin_notifications'];
+    keys.forEach(key => {
+      const value = req.body[key] === '1' ? '1' : '0';
+      prepare('UPDATE settings SET value = ?, updated_at = datetime(\'now\') WHERE key = ?').run(value, key);
+    });
+    res.redirect('/admin/settings?saved=1');
+  } catch (err) {
+    res.status(500).send('Errore nel salvataggio impostazioni');
   }
 });
 
