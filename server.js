@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
-const { getDbAsync, getDb, closeDb, saveDb } = require('./db');
+const { getDbAsync, getDb, closeDb, saveDb, prepare } = require('./db');
 const SQLiteSessionStore = require('./middleware/session-store');
 
 const app = express();
@@ -109,12 +109,12 @@ async function start() {
 
     // Fetch live stats for the banner
     try {
-      const db = getDb();
-      const userCount = db.prepare("SELECT COUNT(*) as count FROM users WHERE deleted_at IS NULL").get().count;
-      const downloadCount = db.prepare("SELECT COUNT(*) as count FROM page_views WHERE page LIKE 'download:%'").get().count;
-      const visitorCount = db.prepare("SELECT COUNT(DISTINCT ip_address) as count FROM page_views").get().count;
+      const userCount = prepare("SELECT COUNT(*) as count FROM users WHERE deleted_at IS NULL").get().count;
+      const downloadCount = prepare("SELECT COUNT(*) as count FROM page_views WHERE page LIKE 'download:%'").get().count;
+      const visitorCount = prepare("SELECT COUNT(DISTINCT ip_address) as count FROM page_views").get().count;
       res.locals.siteStats = { userCount, downloadCount, visitorCount };
     } catch (e) {
+      console.error('[Stats] Error fetching live stats:', e.message);
       res.locals.siteStats = { userCount: 0, downloadCount: 0, visitorCount: 0 };
     }
     next();
@@ -186,7 +186,7 @@ async function start() {
       );
       saveDb();
     } catch { /* ignore */ }
-    res.download(path.join(__dirname, 'public', 'downloads', 'IlMondoDiLulz_Definitivo.pdf'), 'IlMondoDiLulz_Definitivo.pdf');
+    res.download(path.join(__dirname, 'public', 'downloads', 'IlMondoDiLulz.pdf'), 'IlMondoDiLulz.pdf');
   });
 
   // Homepage

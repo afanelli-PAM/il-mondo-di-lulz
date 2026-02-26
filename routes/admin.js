@@ -67,6 +67,17 @@ router.get('/dashboard', requireAdmin, (req, res) => {
       "SELECT COUNT(*) as count FROM page_views WHERE page = 'download:ebook'"
     ).get().count;
 
+    // ── Statistiche download PDF ──
+    const pdfToday = prepare(
+      "SELECT COUNT(*) as count FROM page_views WHERE page = 'download:pdf' AND created_at >= date('now')"
+    ).get().count;
+    const pdfWeek = prepare(
+      "SELECT COUNT(*) as count FROM page_views WHERE page = 'download:pdf' AND created_at >= date('now', '-7 days')"
+    ).get().count;
+    const pdfTotal = prepare(
+      "SELECT COUNT(*) as count FROM page_views WHERE page = 'download:pdf'"
+    ).get().count;
+
     // ── Visite ultimi 7 giorni (per grafico) ──
     const visitsByDay = prepare(`
       SELECT date(created_at) as giorno, COUNT(*) as visite, COUNT(DISTINCT ip_address) as unici
@@ -93,6 +104,7 @@ router.get('/dashboard', requireAdmin, (req, res) => {
         visitsToday, visitsWeek, visitsTotal,
         uniqueVisitorsToday, uniqueVisitorsWeek, uniqueVisitorsTotal,
         downloadsToday, downloadsWeek, downloadsTotal,
+        pdfToday, pdfWeek, pdfTotal,
       },
       visitsByDay,
       topPages,

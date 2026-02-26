@@ -70,13 +70,29 @@
           <h3>
             <%= stats.downloadsTotal %>
           </h3>
-          <p>Download eBook</p>
+          <p>Download eBook (EPUB)</p>
           <small style="color:var(--text-muted);">
             Oggi: <strong>
               <%= stats.downloadsToday %>
             </strong> &middot;
             7gg: <strong>
               <%= stats.downloadsWeek %>
+            </strong>
+          </small>
+        </div>
+
+        <div class="dash-card">
+          <div class="dash-card-icon">&#128196;</div>
+          <h3>
+            <%= stats.pdfTotal %>
+          </h3>
+          <p>Download eBook (PDF)</p>
+          <small style="color:var(--text-muted);">
+            Oggi: <strong>
+              <%= stats.pdfToday %>
+            </strong> &middot;
+            7gg: <strong>
+              <%= stats.pdfWeek %>
             </strong>
           </small>
         </div>
