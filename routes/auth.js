@@ -107,7 +107,11 @@ router.post('/register', guestOnly, async (req, res) => {
       console.error('[Email] Errore notifica admin (registrazione):', err.message);
     });
 
-    return res.redirect(`/auth/verifica-email-inviata?email=${encodeURIComponent(normalizedEmail)}`);
+    if (regVerify && regVerify.value === '1') {
+      return res.redirect(`/auth/verifica-email-inviata?email=${encodeURIComponent(normalizedEmail)}`);
+    } else {
+      return res.redirect(`/auth/login?registered=1`);
+    }
   } catch (err) {
     console.error('Registration error:', err);
     res.render('register', { error: 'Errore durante la registrazione. Riprova.', formData });
@@ -188,9 +192,13 @@ router.post('/reinvia-verifica', async (req, res) => {
 // GET /auth/login
 // ---------------------------------------------------------------------------
 router.get('/login', guestOnly, (req, res) => {
+  let info = null;
+  if (req.query.verified === '1') info = 'Email verificata! Ora puoi accedere.';
+  if (req.query.registered === '1') info = 'Registrazione completata con successo! Ora puoi accedere.';
+
   res.render('login', {
     error: null,
-    info: req.query.verified === '1' ? 'Email verificata! Ora puoi accedere.' : null,
+    info,
     needsVerification: false,
     pendingEmail: null,
   });
