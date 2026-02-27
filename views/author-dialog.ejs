@@ -196,6 +196,15 @@
             document.body.style.overflow = '';
         };
 
+        // Navigation button listeners (moved outside loadPdf for reliability)
+        document.getElementById('prev-page').addEventListener('click', () => {
+            if (pageFlip) pageFlip.flipPrev();
+        });
+
+        document.getElementById('next-page').addEventListener('click', () => {
+            if (pageFlip) pageFlip.flipNext();
+        });
+
         async function loadPdf() {
             try {
                 const loadingTask = pdfjsLib.getDocument(pdfUrl);
@@ -243,9 +252,6 @@
                 pageFlip.on('flip', (e) => {
                     document.getElementById('page-info').innerText = `${e.data + 1} / ${totalPages}`;
                 });
-
-                document.getElementById('prev-page').onclick = () => pageFlip.flipPrev();
-                document.getElementById('next-page').onclick = () => pageFlip.flipNext();
 
                 document.getElementById('page-info').innerText = `1 / ${totalPages}`;
             } catch (err) {
@@ -513,6 +519,13 @@
             align-items: center;
             gap: 20px;
             color: white;
+            position: relative;
+            z-index: 100;
+        }
+
+        .flipbook-controls button {
+            position: relative;
+            z-index: 101;
         }
 
         .open-hint {
