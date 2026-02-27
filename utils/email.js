@@ -227,9 +227,63 @@ async function notifyNewRegistration(nome, cognome, email, segno) {
   });
 }
 
+async function notifyAuthorFeedback(nome, email, tipo, contenuto, valutazione) {
+  const { prepare } = require('../db');
+  // Nota: inviamo sempre il feedback via email perché è un'azione esplicita dell'utente,
+  // indipendentemente dall'impostazione admin_notifications (che riguarda i visitatori).
+
+  const now = new Date().toLocaleString('it-IT', { timeZone: 'Europe/Rome' });
+  const adminUrl = (process.env.BASE_URL || 'http://localhost:3000').replace(/\/$/, '') + '/admin/feedback';
+
+  const html = emailBase(`
+    <h3 style="color:#daa520;">📩 Nuovo feedback autore</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:0.95rem;">
+      <tr>
+        <td style="padding:6px 12px 6px 0;color:#888;white-space:nowrap;">Nome:</td>
+        <td style="color:#e0d5b0;">${nome}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 12px 6px 0;color:#888;white-space:nowrap;">Email:</td>
+        <td style="color:#e0d5b0;">${email}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 12px 6px 0;color:#888;white-space:nowrap;">Tipo:</td>
+        <td style="color:#e0d5b0;">${tipo.toUpperCase()}</td>
+      </tr>
+      ${valutazione ? `
+      <tr>
+        <td style="padding:6px 12px 6px 0;color:#888;white-space:nowrap;">Valutazione:</td>
+        <td style="color:#daa520;">${'★'.repeat(valutazione)}</td>
+      </tr>` : ''}
+      <tr>
+        <td style="padding:6px 12px 6px 0;color:#888;white-space:nowrap;vertical-align:top;">Messaggio:</td>
+        <td style="color:#e0d5b0;">${contenuto}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 12px 6px 0;color:#888;white-space:nowrap;">Data/ora:</td>
+        <td style="color:#e0d5b0;">${now}</td>
+      </tr>
+    </table>
+    <div style="text-align:center;margin-top:28px;">
+      <a href="${adminUrl}"
+         style="background:#daa520;color:#0a0a15;padding:11px 26px;border-radius:6px;
+                text-decoration:none;font-weight:bold;display:inline-block;">
+        Gestisci in admin →
+      </a>
+    </div>
+  `);
+
+  return sendEmail({
+    to: ADMIN_EMAIL,
+    subject: `📩 Nuovo feedback (${tipo}) – Il Mondo di Lulz`,
+    html,
+  });
+}
+
 module.exports = {
   sendVerificationEmail,
   sendDeletionEmail,
   notifyNewVisitor,
   notifyNewRegistration,
+  notifyAuthorFeedback,
 };

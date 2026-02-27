@@ -1,5 +1,6 @@
 const express = require('express');
 const { prepare } = require('../db');
+const { notifyAuthorFeedback } = require('../utils/email');
 
 const router = express.Router();
 
@@ -54,6 +55,11 @@ router.post('/feedback', async (req, res) => {
       INSERT INTO author_feedback (user_id, nome, email, tipo, contenuto, valutazione)
       VALUES (?, ?, ?, ?, ?, ?)
     `).run(userId, nome.trim(), email.trim().toLowerCase(), tipo, contenuto.trim(), valutazione ? parseInt(valutazione, 10) : null);
+
+        // Notifica l'autore (admin) via email
+        notifyAuthorFeedback(nome.trim(), email.trim().toLowerCase(), tipo, contenuto.trim(), valutazione ? parseInt(valutazione, 10) : null).catch((err) => {
+            console.error('[Email] Errore notifica feedback autore:', err.message);
+        });
 
         res.redirect('/autore?success=1');
     } catch (err) {
