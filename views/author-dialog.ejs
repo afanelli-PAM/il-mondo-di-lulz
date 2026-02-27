@@ -1,5 +1,9 @@
 <%- include('partials/header') %>
 
+    <!-- PDF.js & Page-Flip -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
+
     <div class="author-page">
         <!-- Hero Section -->
         <section class="hero-mini">
@@ -14,8 +18,10 @@
             <div class="container">
                 <div class="book-details-grid">
                     <div class="book-visual">
-                        <div class="floating-book">
+                        <div class="floating-book" id="trigger-flipbook" style="cursor: pointer;"
+                            title="Clicca per sfogliare il libro!">
                             <img src="/images/copertina.jpg" alt="Il Mondo di Lulz" class="img-fluid rounded shadow-lg">
+                            <div class="open-hint">Clicca per leggere 📖</div>
                         </div>
                     </div>
                     <div class="book-text-content">
