@@ -234,4 +234,19 @@ router.post('/feedback/:id/delete', requireAdmin, (req, res) => {
   }
 });
 
+// Admin Feedback Approve/Unapprove
+router.post('/feedback/:id/toggle-approve', requireAdmin, (req, res) => {
+  try {
+    const feedback = prepare('SELECT is_approved FROM author_feedback WHERE id = ?').get(req.params.id);
+    if (!feedback) return res.status(404).send('Feedback non trovato');
+
+    const newStatus = feedback.is_approved === 1 ? 0 : 1;
+    prepare('UPDATE author_feedback SET is_approved = ? WHERE id = ?').run(newStatus, req.params.id);
+
+    res.redirect('/admin/feedback?updated=1');
+  } catch (err) {
+    res.status(500).send('Errore durante l\'aggiornamento dello stato');
+  }
+});
+
 module.exports = router;

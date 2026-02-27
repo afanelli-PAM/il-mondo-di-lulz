@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
     const recensioni = prepare(`
     SELECT nome, contenuto, valutazione, created_at 
     FROM author_feedback 
-    WHERE tipo = 'recensione' 
+    WHERE tipo = 'recensione' AND is_approved = 1
     ORDER BY created_at DESC 
     LIMIT 10
   `).all();
@@ -52,8 +52,8 @@ router.post('/feedback', async (req, res) => {
 
     try {
         prepare(`
-      INSERT INTO author_feedback (user_id, nome, email, tipo, contenuto, valutazione)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO author_feedback (user_id, nome, email, tipo, contenuto, valutazione, is_approved)
+      VALUES (?, ?, ?, ?, ?, ?, 0)
     `).run(userId, nome.trim(), email.trim().toLowerCase(), tipo, contenuto.trim(), valutazione ? parseInt(valutazione, 10) : null);
 
         // Notifica l'autore (admin) via email

@@ -141,6 +141,7 @@ function initSchema() {
       tipo TEXT NOT NULL, -- 'messaggio' o 'recensione'
       contenuto TEXT NOT NULL,
       valutazione INTEGER, -- 1-5, usato solo per recensioni
+      is_approved INTEGER DEFAULT 0, -- 0=da moderare, 1=approvato
       created_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
     )
@@ -168,6 +169,7 @@ function runMigrations() {
     'ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0',
     'ALTER TABLE users ADD COLUMN verification_token TEXT',
     'ALTER TABLE users ADD COLUMN verification_token_expires TEXT',
+    'ALTER TABLE author_feedback ADD COLUMN is_approved INTEGER DEFAULT 0',
   ];
   for (const sql of migrations) {
     try { db.run(sql); } catch { /* column already exists — skip */ }

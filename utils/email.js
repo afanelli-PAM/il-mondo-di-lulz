@@ -237,6 +237,9 @@ async function notifyAuthorFeedback(nome, email, tipo, contenuto, valutazione) {
 
   const html = emailBase(`
     <h3 style="color:#daa520;">📩 Nuovo feedback autore</h3>
+    <p style="background:rgba(218,165,32,0.1);padding:10px;border-radius:4px;border-left:4px solid #daa520;">
+      <strong>Nota:</strong> Questo feedback è in attesa di moderazione e non è ancora visibile pubblicamente.
+    </p>
     <table style="width:100%;border-collapse:collapse;font-size:0.95rem;">
       <tr>
         <td style="padding:6px 12px 6px 0;color:#888;white-space:nowrap;">Nome:</td>

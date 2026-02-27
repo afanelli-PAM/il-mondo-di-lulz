@@ -23,17 +23,18 @@
                                     <th>Tipo</th>
                                     <th>Contenuto</th>
                                     <th>Stelle</th>
+                                    <th>Stato</th>
                                     <th>Azioni</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <% if (feedback.length===0) { %>
                                     <tr>
-                                        <td colspan="7" class="text-center py-4">Nessun feedback ricevuto.</td>
+                                        <td colspan="8" class="text-center py-4">Nessun feedback ricevuto.</td>
                                     </tr>
                                     <% } else { %>
                                         <% feedback.forEach(f=> { %>
-                                            <tr>
+                                            <tr class="<%= f.is_approved ? '' : 'pending-row' %>">
                                                 <td class="small">
                                                     <%= new Date(f.created_at).toLocaleString('it-IT') %>
                                                 </td>
@@ -57,12 +58,28 @@
                                                     <%= f.valutazione ? '★' .repeat(f.valutazione) : '-' %>
                                                 </td>
                                                 <td>
-                                                    <form action="/admin/feedback/<%= f.id %>/delete" method="POST"
-                                                        onsubmit="return confirm('Sei sicuro di voler eliminare questo feedback?')">
-                                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                                                        <button type="submit"
-                                                            class="btn btn-sm btn-danger">Elimina</button>
-                                                    </form>
+                                                    <span
+                                                        class="badge <%= f.is_approved ? 'bg-success' : 'bg-secondary' %>">
+                                                        <%= f.is_approved ? 'Pubblicato' : 'In attesa' %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex gap-2">
+                                                        <form action="/admin/feedback/<%= f.id %>/toggle-approve"
+                                                            method="POST">
+                                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                            <button type="submit"
+                                                                class="btn btn-sm <%= f.is_approved ? 'btn-outline-warning' : 'btn-success' %>">
+                                                                <%= f.is_approved ? 'Nascondi' : 'Approva' %>
+                                                            </button>
+                                                        </form>
+                                                        <form action="/admin/feedback/<%= f.id %>/delete" method="POST"
+                                                            onsubmit="return confirm('Sei sicuro di voler eliminare questo feedback?')">
+                                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                            <button type="submit"
+                                                                class="btn btn-sm btn-danger">Elimina</button>
+                                                        </form>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             <% }) %>
