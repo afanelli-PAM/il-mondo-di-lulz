@@ -112,6 +112,7 @@ router.get('/dashboard', requireAdmin, (req, res) => {
       // Pass links to the template for rendering
       adminUsersLink: '/admin/users',
       adminSettingsLink: '/admin/settings',
+      adminFeedbackLink: '/admin/feedback',
     });
   } catch (err) {
     console.error(err);
@@ -210,6 +211,26 @@ router.post('/settings', requireAdmin, (req, res) => {
     res.redirect('/admin/settings?saved=1');
   } catch (err) {
     res.status(500).send('Errore nel salvataggio impostazioni');
+  }
+});
+
+// Admin Feedback List
+router.get('/feedback', requireAdmin, (req, res) => {
+  try {
+    const feedback = prepare('SELECT * FROM author_feedback ORDER BY created_at DESC').all();
+    res.render('admin/feedback', { title: 'Gestione Feedback Autore', feedback, success: req.query.deleted === '1' ? 'Feedback eliminato.' : null });
+  } catch (err) {
+    res.status(500).send('Errore nel caricamento feedback');
+  }
+});
+
+// Admin Feedback Delete
+router.post('/feedback/:id/delete', requireAdmin, (req, res) => {
+  try {
+    prepare('DELETE FROM author_feedback WHERE id = ?').run(req.params.id);
+    res.redirect('/admin/feedback?deleted=1');
+  } catch (err) {
+    res.status(500).send('Errore nella cancellazione feedback');
   }
 });
 

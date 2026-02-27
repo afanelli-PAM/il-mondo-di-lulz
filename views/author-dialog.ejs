@@ -1,0 +1,342 @@
+<%- include('partials/header') %>
+
+    <div class="author-page">
+        <!-- Hero Section -->
+        <section class="hero-mini">
+            <div class="container text-center">
+                <h1 class="glow-text">Dialogo con l'Autore</h1>
+                <p class="subtitle">Scambia due parole con chi ha dato vita al Mondo di Lulz</p>
+            </div>
+        </section>
+
+        <!-- Book Info Section -->
+        <section class="section">
+            <div class="container">
+                <div class="book-details-grid">
+                    <div class="book-visual">
+                        <div class="floating-book">
+                            <img src="/images/copertina.jpg" alt="Il Mondo di Lulz" class="img-fluid rounded shadow-lg">
+                        </div>
+                    </div>
+                    <div class="book-text-content">
+                        <h2 class="section-title">
+                            <%= bookInfo.titolo %>
+                        </h2>
+                        <p class="author-name">di <strong>
+                                <%= bookInfo.autore %>
+                            </strong></p>
+                        <div class="description-box">
+                            <p>
+                                <%= bookInfo.descrizione %>
+                            </p>
+                            <p>
+                                <%= bookInfo.storia %>
+                            </p>
+                        </div>
+                        <div class="themes-box">
+                            <h3>Temi Principali</h3>
+                            <ul>
+                                <% bookInfo.temi.forEach(tema=> { %>
+                                    <li><span class="star-bullet">✦</span>
+                                        <%= tema %>
+                                    </li>
+                                    <% }) %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interaction Section -->
+        <section class="section bg-dark-soft">
+            <div class="container">
+                <div class="feedback-layout">
+                    <div class="feedback-form-container">
+                        <div class="card glass-card">
+                            <h3>Lascia un segno</h3>
+                            <p class="mb-4">Vuoi inviare un messaggio privato ad Antonio o lasciare una recensione
+                                pubblica?</p>
+
+                            <% if (success) { %>
+                                <div class="alert alert-success">
+                                    Grazie! Il tuo feedback è stato inviato con successo.
+                                </div>
+                                <% } %>
+
+                                    <form action="/autore/feedback" method="POST" class="auth-form">
+                                        <div class="form-group">
+                                            <label for="nome">Nome</label>
+                                            <input type="text" id="nome" name="nome" value="<%= formData.nome || '' %>"
+                                                required placeholder="Il tuo nome">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="email">Indirizzo Email</label>
+                                            <input type="email" id="email" name="email" required
+                                                placeholder="la-tua@email.com">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="tipo">Tipo di Contatto</label>
+                                            <select id="tipo" name="tipo" required onchange="toggleRating(this.value)">
+                                                <option value="messaggio">Messaggio Privato all'Autore</option>
+                                                <option value="recensione">Recensione Pubblica</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group" id="rating-group" style="display: none;">
+                                            <label>Valutazione</label>
+                                            <div class="star-rating">
+                                                <input type="radio" id="star5" name="valutazione" value="5"><label
+                                                    for="star5">★</label>
+                                                <input type="radio" id="star4" name="valutazione" value="4"><label
+                                                    for="star4">★</label>
+                                                <input type="radio" id="star3" name="valutazione" value="3"><label
+                                                    for="star3">★</label>
+                                                <input type="radio" id="star2" name="valutazione" value="2"><label
+                                                    for="star2">★</label>
+                                                <input type="radio" id="star1" name="valutazione" value="1"><label
+                                                    for="star1">★</label>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="contenuto">Il tuo messaggio</label>
+                                            <textarea id="contenuto" name="contenuto" rows="5" required
+                                                placeholder="Scrivi qui i tuoi pensieri sul libro..."></textarea>
+                                        </div>
+
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        <button type="submit" class="btn btn-primary btn-block">Invia Feedback</button>
+                                    </form>
+                        </div>
+                    </div>
+
+                    <div class="reviews-display">
+                        <h3 class="mb-4">Recensioni dei Lettori</h3>
+                        <% if (recensioni.length===0) { %>
+                            <p class="text-muted italic">Non ci sono ancora recensioni. Sii il primo a scriverne una!
+                            </p>
+                            <% } else { %>
+                                <div class="reviews-list">
+                                    <% recensioni.forEach(r=> { %>
+                                        <div class="review-item">
+                                            <div class="review-header">
+                                                <span class="review-author">
+                                                    <%= r.nome %>
+                                                </span>
+                                                <span class="review-stars">
+                                                    <% for(let i=0; i<r.valutazione; i++) { %>★<% } %>
+                                                            <% for(let i=r.valutazione; i<5; i++) { %>☆<% } %>
+                                                </span>
+                                            </div>
+                                            <p class="review-text">"<%= r.contenuto %>"</p>
+                                            <span class="review-date">
+                                                <%= new Date(r.created_at).toLocaleDateString('it-IT') %>
+                                            </span>
+                                        </div>
+                                        <% }) %>
+                                </div>
+                                <% } %>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function toggleRating(val) {
+            const group = document.getElementById('rating-group');
+            if (val === 'recensione') {
+                group.style.display = 'block';
+            } else {
+                group.style.display = 'none';
+                // Deseleziona le stelle se torniamo a messaggio
+                const stars = group.querySelectorAll('input[type="radio"]');
+                stars.forEach(s => s.checked = false);
+            }
+        }
+    </script>
+
+    <style>
+        .author-page {
+            color: #e0d5b0;
+        }
+
+        .hero-mini {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #0a0a15 0%, #1a1a2e 100%);
+            border-bottom: 1px solid #daa52033;
+        }
+
+        .glow-text {
+            color: #daa520;
+            text-shadow: 0 0 15px rgba(218, 165, 32, 0.4);
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #888;
+        }
+
+        .section {
+            padding: 60px 0;
+        }
+
+        .section-title {
+            color: #daa520;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+        }
+
+        .bg-dark-soft {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .book-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        .floating-book {
+            animation: float 6s ease-in-out infinite;
+            perspective: 1000px;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px) rotateY(-5deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotateY(5deg);
+            }
+
+            100% {
+                transform: translateY(0px) rotateY(-5deg);
+            }
+        }
+
+        .description-box {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #ccc;
+            margin-bottom: 2rem;
+        }
+
+        .themes-box h3 {
+            color: #daa520;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .themes-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .themes-box li {
+            margin-bottom: 0.8rem;
+        }
+
+        .star-bullet {
+            color: #daa520;
+            margin-right: 10px;
+        }
+
+        .feedback-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 25, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid #daa52055;
+            padding: 2.5rem;
+            border-radius: 12px;
+        }
+
+        /* Star Rating */
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 5px;
+            font-size: 1.5rem;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            cursor: pointer;
+            color: #444;
+            transition: color 0.2s;
+        }
+
+        .star-rating input:checked~label,
+        .star-rating label:hover,
+        .star-rating label:hover~label {
+            color: #daa520;
+        }
+
+        /* Reviews */
+        .review-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #daa520;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .review-author {
+            font-weight: bold;
+            color: #daa520;
+        }
+
+        .review-stars {
+            color: #daa520;
+            letter-spacing: 2px;
+        }
+
+        .review-text {
+            font-style: italic;
+            color: #bbb;
+            line-height: 1.5;
+        }
+
+        .review-date {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #666;
+            text-align: right;
+        }
+
+        @media (max-width: 991px) {
+
+            .book-details-grid,
+            .feedback-layout {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .book-visual {
+                max-width: 300px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+
+    <%- include('partials/footer') %>

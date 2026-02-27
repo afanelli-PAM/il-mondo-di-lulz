@@ -157,12 +157,14 @@ async function start() {
   const profileRoutes = require('./routes/profile');
   const gdprRoutes = require('./routes/gdpr');
   const adminRoutes = require('./routes/admin');
+  const authorRoutes = require('./routes/author');
 
   app.use('/auth', authLimiter, doubleCsrfProtection, authRoutes);
   app.use('/oracolo', oracleLimiter, doubleCsrfProtection, oracleRoutes);
   app.use('/profilo', doubleCsrfProtection, profileRoutes);
   app.use('/gdpr', doubleCsrfProtection, gdprRoutes);
   app.use('/admin', doubleCsrfProtection, adminRoutes);
+  app.use('/autore', authorRoutes);
 
   // Tracked ebook download (EPUB)
   app.get('/download/ebook', (req, res) => {

@@ -1,0 +1,101 @@
+<%- include('../partials/header') %>
+
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-gold">Gestione Feedback Autore</h2>
+            <a href="/admin/dashboard" class="btn btn-secondary">Torna alla Dashboard</a>
+        </div>
+
+        <% if (success) { %>
+            <div class="alert alert-success">
+                <%= success %>
+            </div>
+            <% } %>
+
+                <div class="card glass-card">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Nome</th>
+                                    <th>Email</th>
+                                    <th>Tipo</th>
+                                    <th>Contenuto</th>
+                                    <th>Stelle</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (feedback.length===0) { %>
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4">Nessun feedback ricevuto.</td>
+                                    </tr>
+                                    <% } else { %>
+                                        <% feedback.forEach(f=> { %>
+                                            <tr>
+                                                <td class="small">
+                                                    <%= new Date(f.created_at).toLocaleString('it-IT') %>
+                                                </td>
+                                                <td>
+                                                    <%= f.nome %>
+                                                </td>
+                                                <td><a href="mailto:<%= f.email %>" class="text-gold">
+                                                        <%= f.email %>
+                                                    </a></td>
+                                                <td>
+                                                    <span
+                                                        class="badge <%= f.tipo === 'recensione' ? 'bg-info' : 'bg-warning' %>">
+                                                        <%= f.tipo.toUpperCase() %>
+                                                    </span>
+                                                </td>
+                                                <td class="feedback-content" title="<%= f.contenuto %>">
+                                                    <%= f.contenuto.length> 50 ? f.contenuto.substring(0, 50) + '...' :
+                                                        f.contenuto %>
+                                                </td>
+                                                <td class="text-gold">
+                                                    <%= f.valutazione ? '★' .repeat(f.valutazione) : '-' %>
+                                                </td>
+                                                <td>
+                                                    <form action="/admin/feedback/<%= f.id %>/delete" method="POST"
+                                                        onsubmit="return confirm('Sei sicuro di voler eliminare questo feedback?')">
+                                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                        <button type="submit"
+                                                            class="btn btn-sm btn-danger">Elimina</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+    </div>
+
+    <style>
+        .text-gold {
+            color: #daa520;
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 25, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid #daa52055;
+        }
+
+        .table-dark {
+            background: transparent;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+        }
+
+        .feedback-content {
+            max-width: 250px;
+            font-size: 0.9rem;
+        }
+    </style>
+
+    <%- include('../partials/footer') %>

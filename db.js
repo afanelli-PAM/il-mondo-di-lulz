@@ -131,6 +131,20 @@ function initSchema() {
       updated_at TEXT DEFAULT (datetime('now'))
     )
   `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS author_feedback (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      nome TEXT NOT NULL,
+      email TEXT NOT NULL,
+      tipo TEXT NOT NULL, -- 'messaggio' o 'recensione'
+      contenuto TEXT NOT NULL,
+      valutazione INTEGER, -- 1-5, usato solo per recensioni
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    )
+  `);
 }
 
 function initSettings() {
