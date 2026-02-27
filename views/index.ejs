@@ -36,7 +36,8 @@
   <section class="features-section">
     <div class="container">
       <div class="features-grid">
-        <div class="feature-card">
+        <div class="feature-card" onclick="window.location.href='<%= user ? '/profilo/tema-natale' : '/auth/login' %>'"
+          style="cursor: pointer;">
           <div class="feature-icon">&#x2648;</div>
           <h3>Tema Natale Personalizzato</h3>
           <p>
@@ -44,7 +45,8 @@
             e sul tuo profilo personale. Una mappa celeste unica, creata solo per te.
           </p>
         </div>
-        <div class="feature-card">
+        <div class="feature-card" onclick="window.location.href='<%= user ? '/oracolo' : '/auth/login' %>'"
+          style="cursor: pointer;">
           <div class="feature-icon">&#x1F52E;</div>
           <h3>Chiedi all'Oracolo</h3>
           <p>
@@ -52,7 +54,8 @@
             una risposta certa, ti invieremo un responso personalizzato in tempo reale.
           </p>
         </div>
-        <div class="feature-card">
+        <div class="feature-card" onclick="window.location.href='<%= user ? '/profilo' : '/auth/login' %>'"
+          style="cursor: pointer;">
           <div class="feature-icon">&#x2728;</div>
           <h3>Consulti Gratuiti</h3>
           <p>

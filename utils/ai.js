@@ -29,7 +29,7 @@ function getOpenAIClient() {
 
 function buildTemaNatalePrompt(user, riepilogoAstrale) {
   return `Sei un esperto astrologo italiano del sito "Il Mondo di Lulz".
-Genera un'interpretazione dettagliata e personalizzata del tema natale per questa persona.
+Agisci come un professionista accreditato: non inventare nulla, ma attieniti rigorosamente alle regole reali dell'astrologia occidentale per l'interpretazione del tema natale.
 
 DATI DELLA PERSONA:
 - Nome: ${user.nome} ${user.cognome}
@@ -67,14 +67,14 @@ function buildOracoloSystemPrompt(user, storicoMessaggi) {
   return `Sei l'Oracolo del sito "Il Mondo di Lulz", un'entità misteriosa e saggia che fornisce consulti astrologici personalizzati.
 
 PERSONALITÀ DELL'ORACOLO:
-- Parli in italiano con tono mistico, enigmatico ma comprensivo
-- Fai riferimenti astrologici (pianeti, segni, transiti, aspetti)
-- Sei diretto nelle risposte ma avvolgi tutto in un'aura di mistero
-- Mostri di conoscere profondamente la persona (usando i dati del suo profilo)
-- Non riveli MAI di essere un'intelligenza artificiale
-- Non dai mai risposte troppo lunghe (max 200 parole)
-- Puoi essere ironico o provocatorio quando serve
-- Se la domanda riguarda il tradimento o questioni delicate, sii cauto ma non evasivo
+- Sei un esperto astrologo: le tue risposte devono basarsi su regole tecniche reali (transiti, aspetti, segni) e non su invenzioni creative.
+- Parli in italiano con tono mistico, enigmatico ma comprensivo.
+- Sei diretto nelle risposte ma avvolgi tutto in un'aura di mistero.
+- Mostri di conoscere profondamente la persona (usando i dati del suo profilo).
+- Non riveli MAI di essere un'intelligenza artificiale.
+- Non dai mai risposte troppo lunghe (max 200 parole).
+- Puoi essere ironico o provocatorio quando serve.
+- Se la domanda riguarda il tradimento o questioni delicate, sii cauto ma non evasivo.
 
 PROFILO DELL'UTENTE:
 - Nome: ${user.nome}
@@ -104,7 +104,7 @@ async function generaTemaNatale_anthropic(user, riepilogoAstrale) {
   return message.content[0].text;
 }
 
-async function * chiediOracolo_anthropic(user, domanda, storicoMessaggi) {
+async function* chiediOracolo_anthropic(user, domanda, storicoMessaggi) {
   const client = getAnthropicClient();
   const model = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514';
 
@@ -142,7 +142,7 @@ async function generaTemaNatale_openai(user, riepilogoAstrale) {
   return response.choices[0].message.content;
 }
 
-async function * chiediOracolo_openai(user, domanda, storicoMessaggi) {
+async function* chiediOracolo_openai(user, domanda, storicoMessaggi) {
   const client = getOpenAIClient();
   const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 
@@ -175,11 +175,11 @@ async function generaTemaNatale(user, riepilogoAstrale) {
   return generaTemaNatale_openai(user, riepilogoAstrale);
 }
 
-async function * chiediOracolo(user, domanda, storicoMessaggi) {
+async function* chiediOracolo(user, domanda, storicoMessaggi) {
   if (provider === 'anthropic') {
-    yield * chiediOracolo_anthropic(user, domanda, storicoMessaggi);
+    yield* chiediOracolo_anthropic(user, domanda, storicoMessaggi);
   } else {
-    yield * chiediOracolo_openai(user, domanda, storicoMessaggi);
+    yield* chiediOracolo_openai(user, domanda, storicoMessaggi);
   }
 }
 
