@@ -95,23 +95,17 @@ router.post('/register', guestOnly, async (req, res) => {
 
     // Fire-and-forget: l'utente è già creato nel DB, non blocchiamo il redirect
     // se l'SMTP fallisce (l'utente potrà cliccare "Reinvia" dalla pagina di login).
-    const regVerify = prepare("SELECT value FROM settings WHERE key = 'registration_verify_email'").get();
-    if (regVerify && regVerify.value === '1') {
-      sendVerificationEmail(normalizedEmail, nome.trim(), verificationUrl).catch((err) => {
-        console.error('[Email] Errore invio verifica a', normalizedEmail, err.message);
-      });
-    }
+    // Invio email di verifica (riabilitato su richiesta utente)
+    sendVerificationEmail(normalizedEmail, nome.trim(), verificationUrl).catch((err) => {
+      console.error('[Email] Errore invio verifica a', normalizedEmail, err.message);
+    });
 
     // Notifica admin della nuova registrazione
     notifyNewRegistration(nome.trim(), cognome.trim(), normalizedEmail, segno.nome).catch((err) => {
       console.error('[Email] Errore notifica admin (registrazione):', err.message);
     });
 
-    if (regVerify && regVerify.value === '1') {
-      return res.redirect(`/auth/verifica-email-inviata?email=${encodeURIComponent(normalizedEmail)}`);
-    } else {
-      return res.redirect(`/auth/login?registered=1`);
-    }
+    return res.redirect(`/auth/login?registered=1`);
   } catch (err) {
     console.error('Registration error:', err);
     res.render('register', { error: 'Errore durante la registrazione. Riprova.', formData });
@@ -176,12 +170,11 @@ router.post('/reinvia-verifica', async (req, res) => {
       updated_at = datetime('now') WHERE id = ?
     `).run(verificationToken, tokenExpires, user.id);
 
-    const regVerify = prepare("SELECT value FROM settings WHERE key = 'registration_verify_email'").get();
-    if (regVerify && regVerify.value === '1') {
-      sendVerificationEmail(email, user.nome, verificationUrl).catch((err) => {
-        console.error('[Email] Errore reinvio verifica a', email, err.message);
-      });
-    }
+    // Invio email di verifica (riabilitato su richiesta utente)
+    const verificationUrl = `${BASE_URL()}/auth/verifica-email?token=${verificationToken}`;
+    sendVerificationEmail(email, user.nome, verificationUrl).catch((err) => {
+      console.error('[Email] Errore reinvio verifica a', email, err.message);
+    });
   }
 
   // Risposta generica (non rivela se l'email esiste nel sistema)
@@ -225,7 +218,8 @@ router.post('/login', guestOnly, async (req, res) => {
     return res.render('login', { error: 'Credenziali non valide.', info: null, needsVerification: false, pendingEmail: null });
   }
 
-  // Blocca l'accesso se l'email non è stata verificata (solo se la verifica è attiva)
+  // Blocca l'accesso se l'email non è stata verificata (RIMOSSO su richiesta utente)
+  /*
   const regVerify = prepare("SELECT value FROM settings WHERE key = 'registration_verify_email'").get();
   if (regVerify && regVerify.value === '1' && !user.email_verified) {
     return res.render('login', {
@@ -235,6 +229,7 @@ router.post('/login', guestOnly, async (req, res) => {
       pendingEmail: user.email,
     });
   }
+  */
 
   req.session.userId = user.id;
   req.session.userName = user.nome;

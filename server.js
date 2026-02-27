@@ -138,12 +138,15 @@ async function start() {
       } catch { /* non bloccare la request se il tracking fallisce */ }
 
       // Notifica admin al primo accesso di ogni sessione (un'email per visitatore)
+      // Disabilitato su richiesta utente
+      /*
       if (!req.session.adminNotified) {
         req.session.adminNotified = true; // persiste nella sessione → niente email duplicate
         notifyNewVisitor(req.path, req.ip).catch((err) => {
           console.error('[Email] Errore notifica visitatore:', err.message);
         });
       }
+      */
     }
     next();
   });
