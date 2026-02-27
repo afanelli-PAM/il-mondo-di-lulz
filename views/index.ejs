@@ -36,7 +36,7 @@
   <section class="features-section">
     <div class="container">
       <div class="features-grid">
-        <div class="feature-card" onclick="window.location.href='<%= user ? '/profilo/tema-natale' : '/auth/login' %>'"
+        <div class="feature-card clickable-feature" data-url="<%= user ? '/profilo/tema-natale' : '/auth/login' %>"
           style="cursor: pointer;">
           <div class="feature-icon">&#x2648;</div>
           <h3>Tema Natale Personalizzato</h3>
@@ -45,7 +45,7 @@
             e sul tuo profilo personale. Una mappa celeste unica, creata solo per te.
           </p>
         </div>
-        <div class="feature-card" onclick="window.location.href='<%= user ? '/oracolo' : '/auth/login' %>'"
+        <div class="feature-card clickable-feature" data-url="<%= user ? '/oracolo' : '/auth/login' %>"
           style="cursor: pointer;">
           <div class="feature-icon">&#x1F52E;</div>
           <h3>Chiedi all'Oracolo</h3>
@@ -54,7 +54,7 @@
             una risposta certa, ti invieremo un responso personalizzato in tempo reale.
           </p>
         </div>
-        <div class="feature-card" onclick="window.location.href='<%= user ? '/profilo' : '/auth/login' %>'"
+        <div class="feature-card clickable-feature" data-url="<%= user ? '/profilo' : '/auth/login' %>"
           style="cursor: pointer;">
           <div class="feature-icon">&#x2728;</div>
           <h3>Consulti Gratuiti</h3>
@@ -121,5 +121,15 @@
       // Notifica cancellazione account avvenuta
     </script>
     <% } %>
+
+      <script>
+        // Gestione click sulle card (v1.2.1 - CSP Compliance)
+        document.querySelectorAll('.clickable-feature').forEach(card => {
+          card.addEventListener('click', () => {
+            const url = card.getAttribute('data-url');
+            if (url) window.location.href = url;
+          });
+        });
+      </script>
 
       <%- include('partials/footer') %>

@@ -29,7 +29,7 @@ function emailBase(bodyHtml) {
       ${bodyHtml}
       <hr style="border:none;border-top:1px solid #2a2a3a;margin:32px 0;" />
       <p style="text-align:center;font-size:0.78rem;color:#555;margin:0;">
-        &copy; ${new Date().getFullYear()} Il Mondo di Lulz &mdash; v1.2
+        &copy; ${new Date().getFullYear()} Il Mondo di Lulz &mdash; v1.2.1
       </p>
     </div>
   `;
