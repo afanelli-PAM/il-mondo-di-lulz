@@ -68,7 +68,7 @@
 
   <section class="section bg-dark-soft">
     <div class="container">
-      <h3 class="section-subtitle text-center">Booktrailer ufficiale</h3>
+      <h3 class="section-subtitle text-center">Booktrailer non ufficiale</h3>
       <div class="video-wrap">
         <iframe src="<%= algoritmiInfo.trailerEmbedUrl %>" title="Booktrailer Algoritmi" loading="lazy"
           referrerpolicy="strict-origin-when-cross-origin" allowfullscreen
@@ -141,12 +141,39 @@
     }
   });
 
-  document.getElementById('prev-page').addEventListener('click', () => {
-    if (pageFlip) pageFlip.flipPrev();
+  function moveFlipbook(direction) {
+    if (!pageFlip) return;
+
+    if (direction === 'prev') {
+      if (typeof pageFlip.flipPrev === 'function') {
+        pageFlip.flipPrev('top');
+        return;
+      }
+      if (typeof pageFlip.turnToPrevPage === 'function') {
+        pageFlip.turnToPrevPage();
+      }
+      return;
+    }
+
+    if (typeof pageFlip.flipNext === 'function') {
+      pageFlip.flipNext('top');
+      return;
+    }
+    if (typeof pageFlip.turnToNextPage === 'function') {
+      pageFlip.turnToNextPage();
+    }
+  }
+
+  document.getElementById('prev-page').addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    moveFlipbook('prev');
   });
 
-  document.getElementById('next-page').addEventListener('click', () => {
-    if (pageFlip) pageFlip.flipNext();
+  document.getElementById('next-page').addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    moveFlipbook('next');
   });
 
   async function loadPdf() {
@@ -489,6 +516,14 @@
     align-items: center;
     gap: 20px;
     color: #fff;
+    position: relative;
+    z-index: 100;
+  }
+
+  .flipbook-controls button {
+    position: relative;
+    z-index: 101;
+    pointer-events: auto;
   }
 
   @media (max-width: 991px) {
