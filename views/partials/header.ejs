@@ -14,27 +14,28 @@
 
 <body>
   <%- include('live-bar') %>
-    <header class="site-header">
-      <nav class="nav-container">
-        <a href="/" class="logo-link">
-          <img src="/images/dragon-logo.svg" alt="Il Mondo di Lulz" class="logo-img">
-          <span class="logo-text">Il Mondo di Lulz</span>
-        </a>
-        <div class="nav-links">
-          <a href="/autore">Dialogo con l'Autore</a>
-          <% if (user) { %>
-            <a href="/profilo">Il Mio Profilo</a>
-            <a href="/profilo/tema-natale">Tema Natale</a>
-            <a href="/oracolo">Chiedi all'Oracolo</a>
-            <a href="/auth/logout" class="btn-nav">Esci</a>
-            <% } else { %>
-              <a href="/auth/login" class="btn-nav">Accedi</a>
-              <a href="/auth/register" class="btn-nav btn-primary">Registrati</a>
-              <% } %>
-        </div>
-        <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Menu" aria-expanded="false">
-          <span></span><span></span><span></span>
-        </button>
-      </nav>
-    </header>
-    <main class="main-content">
+    <%- include('disclaimer-banner') %>
+      <header class="site-header">
+        <nav class="nav-container">
+          <a href="/" class="logo-link">
+            <img src="/images/dragon-logo.svg" alt="Il Mondo di Lulz" class="logo-img">
+            <span class="logo-text">Il Mondo di Lulz</span>
+          </a>
+          <div class="nav-links">
+            <a href="/autore">Dialogo con l'Autore</a>
+            <% if (user) { %>
+              <a href="/profilo">Il Mio Profilo</a>
+              <a href="/profilo/tema-natale">Tema Natale</a>
+              <a href="/oracolo">Chiedi all'Oracolo</a>
+              <a href="/auth/logout" class="btn-nav">Esci</a>
+              <% } else { %>
+                <a href="/auth/login" class="btn-nav">Accedi</a>
+                <a href="/auth/register" class="btn-nav btn-primary">Registrati</a>
+                <% } %>
+          </div>
+          <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+          </button>
+        </nav>
+      </header>
+      <main class="main-content">

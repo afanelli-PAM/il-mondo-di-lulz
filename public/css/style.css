@@ -1223,3 +1223,78 @@ legend {
   background: rgba(218,165,32,0.3);
   color: var(--text-bright);
 }
+/* --- Disclaimer Banner --- */
+.disclaimer-banner {
+  background: rgba(218, 165, 32, 0.1);
+  border-bottom: 1px solid rgba(218, 165, 32, 0.2);
+  padding: 0.8rem 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.disclaimer-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.disclaimer-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.disclaimer-banner strong {
+  color: var(--gold-light);
+}
+
+/* --- Social Sharing --- */
+.social-sharing {
+  margin-top: 1.5rem;
+}
+
+.social-sharing h4 {
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+  color: var(--gold);
+}
+
+.social-links {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition: all var(--transition);
+  font-size: 1.2rem;
+}
+
+.social-btn:hover {
+  transform: translateY(-3px);
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: 0 4px 12px rgba(218, 165, 32, 0.2);
+}
+
+.social-btn.whatsapp:hover { color: #25D366; border-color: #25D366; }
+.social-btn.facebook:hover { color: #1877F2; border-color: #1877F2; }
+.social-btn.x:hover { color: #fff; border-color: #fff; }
+.social-btn.telegram:hover { color: #0088cc; border-color: #0088cc; }
+
+@media (max-width: 768px) {
+  .disclaimer-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+}
