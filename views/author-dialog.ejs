@@ -337,10 +337,12 @@
         const giveawayAuthHint = document.getElementById('giveaway-auth-hint');
         const giveawayInactiveNote = document.getElementById('giveaway-inactive-note');
         const giveawayAuxMessage = document.getElementById('giveaway-aux-message');
+        const giveawayPointer = document.querySelector('.wheel-pointer');
 
         let giveawayState = null;
         let wheelRotation = 0;
         let isSpinning = false;
+        let wheelBaseTopIndex = 1;
 
         function normalizeSignName(name) {
             return String(name || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
@@ -406,14 +408,44 @@
             }
         }
 
+        function calibrateWheelBaseIndex() {
+            if (!giveawayPointer || !giveawayWheel) return;
+            const labels = Array.from(giveawayWheel.querySelectorAll('.wheel-label'));
+            if (!labels.length) return;
+
+            const pointerRect = giveawayPointer.getBoundingClientRect();
+            const pointerX = pointerRect.left + pointerRect.width / 2;
+            const pointerY = pointerRect.bottom;
+
+            let best = null;
+            for (const label of labels) {
+                const idxRaw = label.style.getPropertyValue('--i');
+                const idx = parseInt(idxRaw, 10);
+                if (Number.isNaN(idx)) continue;
+
+                const rect = label.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const distance = ((centerX - pointerX) ** 2) + ((centerY - pointerY) ** 2);
+
+                if (!best || distance < best.distance) {
+                    best = { index: idx, distance };
+                }
+            }
+
+            if (best) {
+                wheelBaseTopIndex = best.index;
+            }
+        }
+
         function rotateWheelToSign(signName) {
             const index = getSignIndex(signName);
             if (index < 0) return Promise.resolve();
 
             const segment = 360 / zodiacSigns.length;
-            const targetAtPointer = 270 - (index * segment + segment / 2);
             const currentMod = ((wheelRotation % 360) + 360) % 360;
-            const normalizedTarget = ((targetAtPointer % 360) + 360) % 360;
+            const rawTarget = (wheelBaseTopIndex - index) * segment;
+            const normalizedTarget = ((rawTarget % 360) + 360) % 360;
             const delta = (normalizedTarget - currentMod + 360) % 360;
             wheelRotation += (5 * 360) + delta;
 
@@ -492,7 +524,7 @@
                     celebrateWin();
                     setAuxMessage(`Hai vinto! Codice: ${payload.winCode}`, 'tone-success');
                 } else {
-                    setAuxMessage(`Esito: ${payload.resultSign}. Riprova finche hai tentativi.`, 'tone-warning');
+                    setAuxMessage(`Esito: ${payload.resultSign}. Riprova finch\u00e9 hai tentativi.`, 'tone-warning');
                 }
 
                 await loadGiveawayState(false);
@@ -505,6 +537,10 @@
             }
         });
 
+        requestAnimationFrame(calibrateWheelBaseIndex);
+        window.addEventListener('resize', () => {
+            requestAnimationFrame(calibrateWheelBaseIndex);
+        });
         loadGiveawayState();
 
         function toggleRating(val) {
