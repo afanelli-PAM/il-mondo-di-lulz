@@ -32,6 +32,7 @@ router.get('/', (req, res) => {
     };
 
     res.render('author-dialog', {
+        title: 'Il libro',
         bookInfo,
         recensioni,
         error: null,
@@ -65,7 +66,7 @@ router.get('/altri-libri', (req, res) => {
         approfondimentoUrl: 'https://www.arte-news.it/ApprofondimentoPoliticaSociet/Esploso/15993/Algoritmi-di-Antonio-Fanelli-Un-Thriller-Tecnologico-che-Toglie-il-Respiro',
         trailerUrl: 'https://www.youtube.com/watch?v=z20eBwc2d8Q',
         trailerEmbedUrl: 'https://www.youtube.com/embed/z20eBwc2d8Q',
-        pdfPreviewUrl: `/downloads/Algoritmi_Estratto.pdf?v=${estrattoVersion}`,
+        pdfPreviewUrl: `/download/algoritmi-estratto?v=${estrattoVersion}`,
         descrizione: 'Sara, una giovane di famiglia agiata, viene ricattata da un hacker chiamato "Riddle" dopo una notte nata per gioco. Da quel momento, minacce digitali, forum tossici e manipolazione online si intrecciano in un thriller teso e contemporaneo.',
         temi: [
             'Ricatto digitale e sorveglianza',

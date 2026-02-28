@@ -196,6 +196,27 @@ async function start() {
     res.download(path.join(__dirname, 'public', 'downloads', 'IlMondoDiLulz.pdf'), 'IlMondoDiLulz.pdf');
   });
 
+  // Tracked read access to "Algoritmi" extract (count once per session)
+  app.get('/download/algoritmi-estratto', (req, res) => {
+    try {
+      if (!req.session.algoritmiExtractTracked) {
+        req.session.algoritmiExtractTracked = true;
+        const db = getDb();
+        db.run(
+          `INSERT INTO page_views (page, ip_address, session_id, user_id, created_at)
+           VALUES ('read:algoritmi-estratto', ?, ?, ?, datetime('now'))`,
+          [req.ip, req.sessionID || null, req.session?.userId || null]
+        );
+        saveDb();
+      }
+    } catch { /* ignore */ }
+
+    const estrattoPath = path.join(__dirname, 'public', 'downloads', 'Algoritmi_Estratto.pdf');
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename="Algoritmi_Estratto.pdf"');
+    res.sendFile(estrattoPath);
+  });
+
   // Homepage
   app.get('/', (req, res) => {
     res.render('index');

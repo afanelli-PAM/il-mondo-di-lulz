@@ -78,6 +78,17 @@ router.get('/dashboard', requireAdmin, (req, res) => {
       "SELECT COUNT(*) as count FROM page_views WHERE page = 'download:pdf'"
     ).get().count;
 
+    // â”€â”€ Lettori unici estratto "Algoritmi" â”€â”€
+    const algoritmiReadersToday = prepare(
+      "SELECT COUNT(DISTINCT COALESCE(session_id, ip_address)) as count FROM page_views WHERE page = 'read:algoritmi-estratto' AND created_at >= date('now')"
+    ).get().count;
+    const algoritmiReadersWeek = prepare(
+      "SELECT COUNT(DISTINCT COALESCE(session_id, ip_address)) as count FROM page_views WHERE page = 'read:algoritmi-estratto' AND created_at >= date('now', '-7 days')"
+    ).get().count;
+    const algoritmiReadersTotal = prepare(
+      "SELECT COUNT(DISTINCT COALESCE(session_id, ip_address)) as count FROM page_views WHERE page = 'read:algoritmi-estratto'"
+    ).get().count;
+
     // ── Visite ultimi 7 giorni (per grafico) ──
     const visitsByDay = prepare(`
       SELECT date(created_at) as giorno, COUNT(*) as visite, COUNT(DISTINCT ip_address) as unici
@@ -105,6 +116,7 @@ router.get('/dashboard', requireAdmin, (req, res) => {
         uniqueVisitorsToday, uniqueVisitorsWeek, uniqueVisitorsTotal,
         downloadsToday, downloadsWeek, downloadsTotal,
         pdfToday, pdfWeek, pdfTotal,
+        algoritmiReadersToday, algoritmiReadersWeek, algoritmiReadersTotal,
       },
       visitsByDay,
       topPages,
