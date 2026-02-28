@@ -132,6 +132,7 @@
   const ZOOM_MIN = 1;
   const ZOOM_MAX = 2.2;
   const ZOOM_STEP = 0.2;
+  let isLoadingPdf = false;
 
   function applyZoom() {
     const pct = Math.round(zoomLevel * 100);
@@ -153,29 +154,43 @@
     applyZoom();
   }
 
+  function clearFlipbookState() {
+    if (pageFlip && typeof pageFlip.destroy === 'function') {
+      try {
+        pageFlip.destroy();
+      } catch (err) {
+        console.warn('PageFlip destroy warning:', err);
+      }
+    }
+    pageFlip = null;
+    bookContainer.innerHTML = '';
+    document.getElementById('page-info').innerText = 'Caricamento...';
+  }
+
+  function closeFlipbook() {
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    setZoom(1);
+    clearFlipbookState();
+  }
+
   function openFlipbook() {
     overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
     applyZoom();
     bookViewport.scrollTop = 0;
     bookViewport.scrollLeft = 0;
-    if (!pageFlip) {
-      loadPdf();
-    }
+    loadPdf(true);
   }
 
   trigger.addEventListener('click', openFlipbook);
   openInline.addEventListener('click', openFlipbook);
 
-  closeBtn.addEventListener('click', () => {
-    overlay.classList.remove('active');
-    document.body.style.overflow = '';
-  });
+  closeBtn.addEventListener('click', closeFlipbook);
 
   overlay.addEventListener('click', (event) => {
     if (event.target === overlay) {
-      overlay.classList.remove('active');
-      document.body.style.overflow = '';
+      closeFlipbook();
     }
   });
 
@@ -232,9 +247,17 @@
     setZoom(1);
   });
 
-  async function loadPdf() {
+  async function loadPdf(forceReload = false) {
+    if (isLoadingPdf) return;
+    if (forceReload) {
+      clearFlipbookState();
+    }
+    if (pageFlip) return;
+
+    isLoadingPdf = true;
     try {
-      const loadingTask = pdfjsLib.getDocument(pdfUrl);
+      const requestUrl = `${pdfUrl}${pdfUrl.includes('?') ? '&' : '?'}cb=${Date.now()}`;
+      const loadingTask = pdfjsLib.getDocument({ url: requestUrl });
       const pdf = await loadingTask.promise;
       const totalPages = pdf.numPages;
 
@@ -283,6 +306,8 @@
     } catch (err) {
       console.error('Flipbook error:', err);
       alert('Errore durante il caricamento dell estratto. Riprova piu tardi.');
+    } finally {
+      isLoadingPdf = false;
     }
   }
 </script>
