@@ -342,7 +342,7 @@
         let giveawayState = null;
         let wheelRotation = 0;
         let isSpinning = false;
-        let wheelBaseTopIndex = 1;
+        let fallbackTopIndex = 1;
 
         function normalizeSignName(name) {
             return String(name || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
@@ -351,6 +351,15 @@
         function getSignIndex(signName) {
             const normalized = normalizeSignName(signName);
             return zodiacSigns.findIndex((s) => normalizeSignName(s.name) === normalized);
+        }
+
+        function normalizeAngle(angle) {
+            return ((angle % 360) + 360) % 360;
+        }
+
+        function angularDistance(a, b) {
+            const diff = Math.abs(normalizeAngle(a) - normalizeAngle(b));
+            return Math.min(diff, 360 - diff);
         }
 
         function setAuxMessage(message, tone) {
@@ -408,14 +417,19 @@
             }
         }
 
-        function calibrateWheelBaseIndex() {
+        function getTopSignIndexFromGeometry() {
             if (!giveawayPointer || !giveawayWheel) return;
             const labels = Array.from(giveawayWheel.querySelectorAll('.wheel-label'));
-            if (!labels.length) return;
+            if (!labels.length) return null;
+
+            const wheelRect = giveawayWheel.getBoundingClientRect();
+            const centerX = wheelRect.left + wheelRect.width / 2;
+            const centerY = wheelRect.top + wheelRect.height / 2;
 
             const pointerRect = giveawayPointer.getBoundingClientRect();
             const pointerX = pointerRect.left + pointerRect.width / 2;
             const pointerY = pointerRect.bottom;
+            const pointerAngle = normalizeAngle(Math.atan2(pointerY - centerY, pointerX - centerX) * (180 / Math.PI));
 
             let best = null;
             for (const label of labels) {
@@ -424,17 +438,23 @@
                 if (Number.isNaN(idx)) continue;
 
                 const rect = label.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                const distance = ((centerX - pointerX) ** 2) + ((centerY - pointerY) ** 2);
+                const labelX = rect.left + rect.width / 2;
+                const labelY = rect.top + rect.height / 2;
+                const labelAngle = normalizeAngle(Math.atan2(labelY - centerY, labelX - centerX) * (180 / Math.PI));
+                const distance = angularDistance(pointerAngle, labelAngle);
 
                 if (!best || distance < best.distance) {
                     best = { index: idx, distance };
                 }
             }
 
-            if (best) {
-                wheelBaseTopIndex = best.index;
+            return best ? best.index : null;
+        }
+
+        function updateFallbackTopIndex() {
+            const topIndex = getTopSignIndexFromGeometry();
+            if (topIndex !== null && topIndex !== undefined) {
+                fallbackTopIndex = topIndex;
             }
         }
 
@@ -443,15 +463,18 @@
             if (index < 0) return Promise.resolve();
 
             const segment = 360 / zodiacSigns.length;
-            const currentMod = ((wheelRotation % 360) + 360) % 360;
-            const rawTarget = (wheelBaseTopIndex - index) * segment;
-            const normalizedTarget = ((rawTarget % 360) + 360) % 360;
-            const delta = (normalizedTarget - currentMod + 360) % 360;
+            const currentTopIndex = getTopSignIndexFromGeometry();
+            const startIndex = (currentTopIndex !== null && currentTopIndex !== undefined)
+                ? currentTopIndex
+                : fallbackTopIndex;
+            const segmentSteps = (startIndex - index + zodiacSigns.length) % zodiacSigns.length;
+            const delta = segmentSteps * segment;
             wheelRotation += (5 * 360) + delta;
 
             return new Promise((resolve) => {
                 giveawayWheel.addEventListener('transitionend', () => {
                     giveawayWheel.classList.remove('spinning');
+                    fallbackTopIndex = index;
                     resolve();
                 }, { once: true });
                 requestAnimationFrame(() => {
@@ -537,9 +560,9 @@
             }
         });
 
-        requestAnimationFrame(calibrateWheelBaseIndex);
+        requestAnimationFrame(updateFallbackTopIndex);
         window.addEventListener('resize', () => {
-            requestAnimationFrame(calibrateWheelBaseIndex);
+            requestAnimationFrame(updateFallbackTopIndex);
         });
         loadGiveawayState();
 
