@@ -130,6 +130,30 @@
         </div>
 
         <div class="dash-card">
+          <div class="dash-card-icon">&#127919;</div>
+          <h3>
+            <%= stats.giveawayPlayersRound %>
+          </h3>
+          <p>Giocatori Giveaway (Round #<%= giveaway.roundId %>)</p>
+          <small style="color:var(--text-muted);">
+            Stato: <strong style="color:<%= giveaway.active ? '#8bc34a' : '#ff9800' %>;">
+              <%= giveaway.active ? 'Attivo' : 'Disattivato' %>
+            </strong>
+          </small>
+        </div>
+
+        <div class="dash-card">
+          <div class="dash-card-icon">&#127942;</div>
+          <h3>
+            <%= stats.giveawayWinnersRound %>
+          </h3>
+          <p>Vincitori Giveaway (Round #<%= giveaway.roundId %>)</p>
+          <small style="color:var(--text-muted);">
+            Giocate round: <strong><%= stats.giveawaySpinsRound %></strong>
+          </small>
+        </div>
+
+        <div class="dash-card">
           <div class="dash-card-icon">&#128737;&#65039;</div>
           <h3>Sessione</h3>
           <p>Amministratore Attivo</p>
@@ -234,6 +258,73 @@
           </table>
         </div>
 
+      </div>
+
+      <div class="chart-grid" style="margin-top:1.5rem;">
+        <div class="chart-card">
+          <h2>Ultime Giocate Giveaway</h2>
+          <% if (latestGiveawaySpins.length> 0) { %>
+            <table class="planet-table">
+              <thead>
+                <tr>
+                  <th>Utente</th>
+                  <th>Round</th>
+                  <th>Tent.</th>
+                  <th>Esito</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% latestGiveawaySpins.forEach((s)=> { %>
+                  <tr>
+                    <td><%= s.user_nome || 'Utente rimosso' %></td>
+                    <td>#<%= s.round_id %></td>
+                    <td><%= s.attempt_number %></td>
+                    <td style="font-size:0.8rem;">
+                      <%= s.user_sign %> / <%= s.result_sign %>
+                      <strong style="color:<%= s.is_winner ? '#8bc34a' : '#ff9800' %>;">
+                        <%= s.is_winner ? 'Vinto' : 'No' %>
+                      </strong>
+                    </td>
+                    <td><%= new Date(s.created_at).toLocaleDateString('it-IT') %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } else { %>
+            <p style="color:var(--text-muted);text-align:center;">Nessuna giocata registrata.</p>
+          <% } %>
+        </div>
+
+        <div class="chart-card">
+          <h2>Vincitori Giveaway</h2>
+          <% if (latestGiveawayWinners.length> 0) { %>
+            <table class="planet-table">
+              <thead>
+                <tr>
+                  <th>Utente</th>
+                  <th>Round</th>
+                  <th>Codice</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% latestGiveawayWinners.forEach((w)=> { %>
+                  <tr>
+                    <td><%= w.user_nome || 'Utente rimosso' %></td>
+                    <td>#<%= w.round_id %></td>
+                    <td style="font-family:monospace;font-size:0.78rem;color:var(--gold);">
+                      <%= w.win_code %>
+                    </td>
+                    <td><%= new Date(w.created_at).toLocaleDateString('it-IT') %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } else { %>
+            <p style="color:var(--text-muted);text-align:center;">Nessun vincitore registrato.</p>
+          <% } %>
+        </div>
       </div>
     </div>
   </section>

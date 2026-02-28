@@ -3,6 +3,7 @@
     <!-- PDF.js & Page-Flip -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
     <div class="author-page">
         <!-- Hero Section -->
@@ -57,6 +58,65 @@
                             <a href="/download/pdf" class="btn btn-secondary btn-large btn-download" style="flex:1;">
                                 &#x1F4D6; Scarica il Libro (PDF)
                             </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Giveaway Wheel Section -->
+        <section class="section giveaway-section">
+            <div class="container">
+                <div class="giveaway-layout">
+                    <div class="giveaway-wheel-wrap">
+                        <div class="wheel-pointer" aria-hidden="true"></div>
+                        <div id="zodiac-wheel" class="zodiac-wheel" aria-label="Ruota astrologica giveaway">
+                            <div class="wheel-center-star">&#10022;</div>
+                            <div class="wheel-label" style="--i:0;">&#9800; Ariete</div>
+                            <div class="wheel-label" style="--i:1;">&#9801; Toro</div>
+                            <div class="wheel-label" style="--i:2;">&#9802; Gemelli</div>
+                            <div class="wheel-label" style="--i:3;">&#9803; Cancro</div>
+                            <div class="wheel-label" style="--i:4;">&#9804; Leone</div>
+                            <div class="wheel-label" style="--i:5;">&#9805; Vergine</div>
+                            <div class="wheel-label" style="--i:6;">&#9806; Bilancia</div>
+                            <div class="wheel-label" style="--i:7;">&#9807; Scorpione</div>
+                            <div class="wheel-label" style="--i:8;">&#9808; Sagittario</div>
+                            <div class="wheel-label" style="--i:9;">&#9809; Capricorno</div>
+                            <div class="wheel-label" style="--i:10;">&#9810; Acquario</div>
+                            <div class="wheel-label" style="--i:11;">&#9811; Pesci</div>
+                        </div>
+                        <div class="giveaway-controls">
+                            <label class="giveaway-terms">
+                                <input type="checkbox" id="giveaway-terms-check">
+                                Accetto le condizioni di gioco promozionale.
+                            </label>
+                            <button id="giveaway-spin-btn" class="btn btn-primary btn-large" type="button">
+                                Gira la Ruota
+                            </button>
+                            <p id="giveaway-aux-message" class="giveaway-aux-message"></p>
+                        </div>
+                    </div>
+
+                    <div class="giveaway-info-card">
+                        <h3>Giveaway astrologico del libro cartaceo</h3>
+                        <p>
+                            Se il giveaway e' attivo puoi girare la ruota (max 3 tentativi per round):
+                            se esce il tuo segno zodiacale, vinci una copia cartacea.
+                        </p>
+                        <div class="giveaway-status-row">
+                            <span id="giveaway-status-badge" class="giveaway-status-badge">Verifica stato...</span>
+                        </div>
+                        <p id="giveaway-user-sign" class="giveaway-data-line"></p>
+                        <p id="giveaway-attempts" class="giveaway-data-line"></p>
+                        <p id="giveaway-win-code" class="giveaway-data-line giveaway-win"></p>
+                        <p id="giveaway-auth-hint" class="giveaway-auth-hint"></p>
+                        <p id="giveaway-inactive-note" class="giveaway-inactive-note">
+                            Giveaway non attivo al momento. Alla prossima apertura gli utenti verificati verranno avvisati via email.
+                        </p>
+                        <div class="giveaway-disclaimer">
+                            <strong>Disclaimer:</strong>
+                            questa iniziativa e' una attivita promozionale del libro. Non costituisce concorso a premi,
+                            lotteria o scommessa.
                         </div>
                     </div>
                 </div>
@@ -172,10 +232,8 @@
                 <button id="next-page" class="btn btn-secondary btn-sm">Avanti</button>
             </div>
         </div>
-    </div>
-
+    </div>
     <script>
-        // Configuration
         const pdfUrl = '/download/il-mondo-di-lulz-flipbook';
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -196,7 +254,6 @@
             document.body.style.overflow = '';
         };
 
-        // Navigation button listeners (moved outside loadPdf for reliability)
         document.getElementById('prev-page').addEventListener('click', () => {
             if (pageFlip) pageFlip.flipPrev();
         });
@@ -213,7 +270,6 @@
 
                 document.getElementById('page-info').innerText = `Caricamento... 1 / ${totalPages}`;
 
-                // Create page elements
                 for (let i = 1; i <= totalPages; i++) {
                     const pageNode = document.createElement('div');
                     pageNode.className = 'page-content';
@@ -226,18 +282,16 @@
                     canvas.height = viewport.height;
                     canvas.width = viewport.width;
 
-                    const renderContext = {
+                    await page.render({
                         canvasContext: canvas.getContext('2d'),
-                        viewport: viewport
-                    };
-                    await page.render(renderContext).promise;
+                        viewport
+                    }).promise;
                 }
 
-                // Initialize PageFlip
                 pageFlip = new St.PageFlip(bookContainer, {
                     width: 550,
                     height: 733,
-                    size: "stretch",
+                    size: 'stretch',
                     minWidth: 315,
                     maxWidth: 1000,
                     minHeight: 420,
@@ -247,18 +301,211 @@
                     mobileScrollSupport: false
                 });
 
-                pageFlip.loadFromHTML(document.querySelectorAll(".page-content"));
-
+                pageFlip.loadFromHTML(document.querySelectorAll('.page-content'));
                 pageFlip.on('flip', (e) => {
                     document.getElementById('page-info').innerText = `${e.data + 1} / ${totalPages}`;
                 });
-
                 document.getElementById('page-info').innerText = `1 / ${totalPages}`;
             } catch (err) {
-                console.error("Flipbook error:", err);
-                alert("Errore durante il caricamento del libro. Riprova più tardi.");
+                console.error('Flipbook error:', err);
+                alert('Errore durante il caricamento del libro. Riprova piu tardi.');
             }
         }
+
+        const zodiacSigns = [
+            { name: 'Ariete', symbol: '\u2648' },
+            { name: 'Toro', symbol: '\u2649' },
+            { name: 'Gemelli', symbol: '\u264A' },
+            { name: 'Cancro', symbol: '\u264B' },
+            { name: 'Leone', symbol: '\u264C' },
+            { name: 'Vergine', symbol: '\u264D' },
+            { name: 'Bilancia', symbol: '\u264E' },
+            { name: 'Scorpione', symbol: '\u264F' },
+            { name: 'Sagittario', symbol: '\u2650' },
+            { name: 'Capricorno', symbol: '\u2651' },
+            { name: 'Acquario', symbol: '\u2652' },
+            { name: 'Pesci', symbol: '\u2653' }
+        ];
+
+        const giveawayWheel = document.getElementById('zodiac-wheel');
+        const giveawaySpinBtn = document.getElementById('giveaway-spin-btn');
+        const giveawayTermsCheck = document.getElementById('giveaway-terms-check');
+        const giveawayStatusBadge = document.getElementById('giveaway-status-badge');
+        const giveawayUserSign = document.getElementById('giveaway-user-sign');
+        const giveawayAttempts = document.getElementById('giveaway-attempts');
+        const giveawayWinCode = document.getElementById('giveaway-win-code');
+        const giveawayAuthHint = document.getElementById('giveaway-auth-hint');
+        const giveawayInactiveNote = document.getElementById('giveaway-inactive-note');
+        const giveawayAuxMessage = document.getElementById('giveaway-aux-message');
+
+        let giveawayState = null;
+        let wheelRotation = 0;
+        let isSpinning = false;
+
+        function normalizeSignName(name) {
+            return String(name || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+        }
+
+        function getSignIndex(signName) {
+            const normalized = normalizeSignName(signName);
+            return zodiacSigns.findIndex((s) => normalizeSignName(s.name) === normalized);
+        }
+
+        function setAuxMessage(message, tone) {
+            giveawayAuxMessage.classList.remove('tone-success', 'tone-warning', 'tone-error', 'tone-info');
+            giveawayAuxMessage.classList.add(tone || 'tone-info');
+            giveawayAuxMessage.textContent = message || '';
+        }
+
+        function updateSpinAvailability() {
+            const termsOk = giveawayTermsCheck.checked;
+            const canSpin = giveawayState && giveawayState.canSpin && termsOk && !isSpinning;
+            giveawaySpinBtn.disabled = !canSpin;
+        }
+
+        function renderGiveawayState(state) {
+            giveawayState = state;
+
+            giveawayStatusBadge.textContent = state.active ? `Attivo - Round #${state.roundId}` : 'Disattivo';
+            giveawayStatusBadge.classList.toggle('is-active', !!state.active);
+            giveawayInactiveNote.style.display = state.active ? 'none' : 'block';
+
+            giveawayUserSign.textContent = state.userSign
+                ? `Il tuo segno: ${state.userSign}`
+                : 'Il tuo segno: disponibile dopo il login';
+
+            if (state.requiresLogin) {
+                giveawayAttempts.textContent = 'Tentativi disponibili: accedi per partecipare.';
+                giveawayAuthHint.innerHTML = 'Ruota visibile a tutti, ma giocabile solo dagli utenti registrati. <a href="/auth/login">Accedi</a> o <a href="/auth/register">registrati</a>.';
+            } else if (!state.emailVerified) {
+                giveawayAttempts.textContent = 'Tentativi bloccati: email non verificata.';
+                giveawayAuthHint.textContent = 'Per partecipare ai giveaway devi prima confermare l indirizzo email.';
+            } else {
+                giveawayAttempts.textContent = `Tentativi usati: ${state.attemptsUsed}/${state.maxAttempts} - Residui: ${state.attemptsLeft}`;
+                giveawayAuthHint.textContent = '';
+            }
+
+            giveawayWinCode.textContent = (state.hasWon && state.winCode)
+                ? `Codice vincita: ${state.winCode} - invialo a log2ins@gmail.com per riscuotere il premio.`
+                : '';
+
+            updateSpinAvailability();
+        }
+
+        async function loadGiveawayState(showError = true) {
+            try {
+                const resp = await fetch('/autore/giveaway/status', {
+                    method: 'GET',
+                    headers: { Accept: 'application/json' }
+                });
+                const payload = await resp.json();
+                renderGiveawayState(payload);
+            } catch (err) {
+                console.error('[Giveaway] State error:', err);
+                if (showError) setAuxMessage('Impossibile caricare lo stato della ruota.', 'tone-error');
+            }
+        }
+
+        function rotateWheelToSign(signName) {
+            const index = getSignIndex(signName);
+            if (index < 0) return Promise.resolve();
+
+            const segment = 360 / zodiacSigns.length;
+            const targetAtPointer = 270 - (index * segment + segment / 2);
+            const currentMod = ((wheelRotation % 360) + 360) % 360;
+            const normalizedTarget = ((targetAtPointer % 360) + 360) % 360;
+            const delta = (normalizedTarget - currentMod + 360) % 360;
+            wheelRotation += (5 * 360) + delta;
+
+            return new Promise((resolve) => {
+                giveawayWheel.addEventListener('transitionend', () => {
+                    giveawayWheel.classList.remove('spinning');
+                    resolve();
+                }, { once: true });
+                requestAnimationFrame(() => {
+                    giveawayWheel.classList.add('spinning');
+                    giveawayWheel.style.transform = `rotate(${wheelRotation}deg)`;
+                });
+            });
+        }
+
+        function playWinSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const notes = [523.25, 659.25, 783.99, 1046.5];
+                notes.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.value = freq;
+                    gain.gain.value = 0.001;
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    const start = audioCtx.currentTime + idx * 0.12;
+                    gain.gain.exponentialRampToValueAtTime(0.12, start + 0.03);
+                    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.22);
+                    osc.start(start);
+                    osc.stop(start + 0.24);
+                });
+            } catch (err) {
+                console.warn('[Giveaway] Audio not available:', err.message);
+            }
+        }
+
+        function celebrateWin() {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 160, spread: 80, origin: { y: 0.65 } });
+                setTimeout(() => confetti({ particleCount: 120, spread: 110, origin: { x: 0.2, y: 0.55 } }), 180);
+                setTimeout(() => confetti({ particleCount: 120, spread: 110, origin: { x: 0.8, y: 0.55 } }), 260);
+            }
+            playWinSound();
+            giveawayWheel.classList.add('winner-glow');
+            setTimeout(() => giveawayWheel.classList.remove('winner-glow'), 2200);
+        }
+
+        giveawayTermsCheck.addEventListener('change', updateSpinAvailability);
+
+        giveawaySpinBtn.addEventListener('click', async () => {
+            if (!giveawayState || !giveawayState.canSpin) return;
+            if (!giveawayTermsCheck.checked) {
+                setAuxMessage('Devi accettare le condizioni per girare la ruota.', 'tone-warning');
+                return;
+            }
+
+            isSpinning = true;
+            updateSpinAvailability();
+            setAuxMessage('La ruota sta girando...', 'tone-info');
+
+            try {
+                const resp = await fetch('/autore/giveaway/spin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    body: JSON.stringify({ acceptedTerms: true })
+                });
+
+                const payload = await resp.json();
+                if (!resp.ok) throw new Error(payload.error || 'Errore durante la giocata');
+
+                await rotateWheelToSign(payload.resultSign);
+
+                if (payload.isWinner) {
+                    celebrateWin();
+                    setAuxMessage(`Hai vinto! Codice: ${payload.winCode}`, 'tone-success');
+                } else {
+                    setAuxMessage(`Esito: ${payload.resultSign}. Riprova finche hai tentativi.`, 'tone-warning');
+                }
+
+                await loadGiveawayState(false);
+            } catch (err) {
+                console.error('[Giveaway] Spin error:', err);
+                setAuxMessage(err.message || 'Errore durante la giocata.', 'tone-error');
+            } finally {
+                isSpinning = false;
+                updateSpinAvailability();
+            }
+        });
+
+        loadGiveawayState();
 
         function toggleRating(val) {
             const group = document.getElementById('rating-group');
@@ -266,7 +513,6 @@
                 group.style.display = 'block';
             } else {
                 group.style.display = 'none';
-                // Deseleziona le stelle se torniamo a messaggio
                 const stars = group.querySelectorAll('input[type="radio"]');
                 stars.forEach(s => s.checked = false);
             }
@@ -363,6 +609,248 @@
             margin-right: 10px;
         }
 
+        .giveaway-section {
+            background:
+                radial-gradient(circle at 20% 20%, rgba(218, 165, 32, 0.16), transparent 42%),
+                radial-gradient(circle at 85% 15%, rgba(92, 140, 255, 0.16), transparent 35%),
+                linear-gradient(130deg, #101123 0%, #17122f 50%, #100f23 100%);
+            border-top: 1px solid rgba(218, 165, 32, 0.28);
+            border-bottom: 1px solid rgba(218, 165, 32, 0.22);
+        }
+
+        .giveaway-layout {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .giveaway-wheel-wrap {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(9, 10, 20, 0.7);
+            border: 1px solid rgba(218, 165, 32, 0.3);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+        }
+
+        .zodiac-wheel {
+            width: min(420px, 86vw);
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            position: relative;
+            border: 8px solid rgba(255, 255, 255, 0.16);
+            box-shadow:
+                0 0 0 8px rgba(218, 165, 32, 0.2),
+                inset 0 0 35px rgba(10, 10, 20, 0.45),
+                0 20px 35px rgba(0, 0, 0, 0.35);
+            background:
+                conic-gradient(from -15deg,
+                    #413485 0deg 30deg,
+                    #1f5e83 30deg 60deg,
+                    #2d8f80 60deg 90deg,
+                    #768e3a 90deg 120deg,
+                    #ad7b2d 120deg 150deg,
+                    #95412f 150deg 180deg,
+                    #702f57 180deg 210deg,
+                    #4b3f8f 210deg 240deg,
+                    #1f597a 240deg 270deg,
+                    #2d7d6d 270deg 300deg,
+                    #6f8a34 300deg 330deg,
+                    #9f6a2d 330deg 360deg);
+            transition: transform 5.6s cubic-bezier(0.15, 0.86, 0.25, 1);
+            transform: rotate(0deg);
+        }
+
+        .zodiac-wheel.spinning {
+            box-shadow:
+                0 0 0 8px rgba(218, 165, 32, 0.25),
+                inset 0 0 48px rgba(10, 10, 20, 0.55),
+                0 0 55px rgba(218, 165, 32, 0.45);
+        }
+
+        .wheel-label {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 98px;
+            margin-left: -49px;
+            text-align: center;
+            color: #fff6db;
+            font-size: 0.76rem;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            transform:
+                rotate(calc(var(--i) * 30deg - 75deg))
+                translateY(-172px)
+                rotate(calc((var(--i) * -30deg) + 75deg));
+        }
+
+        .wheel-center-star {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #fee8a8;
+            background: radial-gradient(circle at 30% 25%, #fff4cc 0%, #d7a630 55%, #6c461a 100%);
+            border: 3px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: 6px;
+            left: calc(50% - 18px);
+            z-index: 4;
+            width: 0;
+            height: 0;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-top: 34px solid #f4d57c;
+            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.5));
+        }
+
+        .giveaway-controls {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .giveaway-terms {
+            font-size: 0.88rem;
+            color: #cbcce8;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .giveaway-terms input {
+            accent-color: #daa520;
+        }
+
+        .giveaway-aux-message {
+            min-height: 1.2rem;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .tone-info {
+            color: #d9d6f4;
+        }
+
+        .tone-warning {
+            color: #ffd27a;
+        }
+
+        .tone-error {
+            color: #ff9088;
+        }
+
+        .tone-success {
+            color: #8be3a3;
+            font-weight: 700;
+        }
+
+        .giveaway-info-card {
+            background: rgba(12, 13, 30, 0.78);
+            border: 1px solid rgba(218, 165, 32, 0.28);
+            border-radius: 18px;
+            padding: 1.6rem;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.32);
+        }
+
+        .giveaway-info-card h3 {
+            color: #f0cf7f;
+            margin-bottom: 0.8rem;
+        }
+
+        .giveaway-info-card p {
+            color: #d2d2e6;
+            line-height: 1.6;
+        }
+
+        .giveaway-status-row {
+            margin: 0.95rem 0 0.8rem;
+        }
+
+        .giveaway-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(255, 152, 0, 0.2);
+            border: 1px solid rgba(255, 152, 0, 0.5);
+            color: #ffd38a;
+            border-radius: 999px;
+            padding: 0.35rem 0.8rem;
+            font-size: 0.84rem;
+            font-weight: 700;
+        }
+
+        .giveaway-status-badge.is-active {
+            background: rgba(97, 182, 90, 0.16);
+            border-color: rgba(97, 182, 90, 0.7);
+            color: #9ce795;
+        }
+
+        .giveaway-data-line {
+            margin-top: 0.45rem;
+            font-size: 0.94rem;
+        }
+
+        .giveaway-win {
+            color: #f4d58d !important;
+            font-weight: 700;
+        }
+
+        .giveaway-auth-hint a {
+            color: #f3cc72;
+            font-weight: 700;
+        }
+
+        .giveaway-inactive-note {
+            margin-top: 0.8rem;
+            color: #ffd38a !important;
+        }
+
+        .giveaway-disclaimer {
+            margin-top: 1.1rem;
+            font-size: 0.86rem;
+            color: #b8b8cf;
+            border-top: 1px dashed rgba(218, 165, 32, 0.35);
+            padding-top: 0.85rem;
+        }
+
+        .winner-glow {
+            animation: winnerPulse 0.6s ease-in-out 4;
+        }
+
+        @keyframes winnerPulse {
+            0% {
+                filter: brightness(1);
+            }
+
+            50% {
+                filter: brightness(1.25);
+            }
+
+            100% {
+                filter: brightness(1);
+            }
+        }
+
         .feedback-layout {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -445,7 +933,8 @@
         @media (max-width: 991px) {
 
             .book-details-grid,
-            .feedback-layout {
+            .feedback-layout,
+            .giveaway-layout {
                 grid-template-columns: 1fr;
                 gap: 2rem;
             }
@@ -552,7 +1041,19 @@
             .flipbook-controls {
                 font-size: 0.8rem;
             }
+
+            .wheel-label {
+                transform:
+                    rotate(calc(var(--i) * 30deg - 75deg))
+                    translateY(-140px)
+                    rotate(calc((var(--i) * -30deg) + 75deg));
+                font-size: 0.67rem;
+                width: 88px;
+                margin-left: -44px;
+            }
         }
     </style>
 
     <%- include('partials/footer') %>
+
+

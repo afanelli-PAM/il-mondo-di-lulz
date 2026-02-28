@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { requireAdmin } = require('../middleware/admin');
 const { prepare } = require('../db');
-const { sendDeletionEmail } = require('../utils/email');
+const { sendDeletionEmail, notifyGiveawayStarted } = require('../utils/email');
 
 // Admin Login GET
 router.get('/login', (req, res) => {
@@ -100,6 +100,37 @@ router.get('/dashboard', requireAdmin, (req, res) => {
       "SELECT COUNT(DISTINCT COALESCE(session_id, ip_address)) as count FROM page_views WHERE page = 'read:il-mondo-di-lulz-flipbook'"
     ).get().count;
 
+    const giveawayActive = (prepare("SELECT value FROM settings WHERE key = 'giveaway_active'").get()?.value || '0') === '1';
+    const giveawayRoundId = parseInt(prepare("SELECT value FROM settings WHERE key = 'giveaway_round_id'").get()?.value || '0', 10) || 0;
+
+    const giveawayPlayersRound = giveawayRoundId > 0
+      ? prepare('SELECT COUNT(DISTINCT user_id) as count FROM giveaway_spins WHERE round_id = ?').get(giveawayRoundId).count
+      : 0;
+    const giveawaySpinsRound = giveawayRoundId > 0
+      ? prepare('SELECT COUNT(*) as count FROM giveaway_spins WHERE round_id = ?').get(giveawayRoundId).count
+      : 0;
+    const giveawayWinnersRound = giveawayRoundId > 0
+      ? prepare('SELECT COUNT(*) as count FROM giveaway_winners WHERE round_id = ?').get(giveawayRoundId).count
+      : 0;
+
+    const latestGiveawaySpins = prepare(`
+      SELECT gs.round_id, gs.attempt_number, gs.user_sign, gs.result_sign, gs.is_winner, gs.created_at,
+             u.nome as user_nome, u.email as user_email
+      FROM giveaway_spins gs
+      LEFT JOIN users u ON u.id = gs.user_id
+      ORDER BY gs.created_at DESC
+      LIMIT 15
+    `).all();
+
+    const latestGiveawayWinners = prepare(`
+      SELECT gw.round_id, gw.win_code, gw.winning_sign, gw.attempt_number, gw.created_at,
+             u.nome as user_nome, u.email as user_email
+      FROM giveaway_winners gw
+      LEFT JOIN users u ON u.id = gw.user_id
+      ORDER BY gw.created_at DESC
+      LIMIT 15
+    `).all();
+
     // ── Visite ultimi 7 giorni (per grafico) ──
     const visitsByDay = prepare(`
       SELECT date(created_at) as giorno, COUNT(*) as visite, COUNT(DISTINCT ip_address) as unici
@@ -129,10 +160,14 @@ router.get('/dashboard', requireAdmin, (req, res) => {
         pdfToday, pdfWeek, pdfTotal,
         algoritmiReadersToday, algoritmiReadersWeek, algoritmiReadersTotal,
         lulzFlipbookReadersToday, lulzFlipbookReadersWeek, lulzFlipbookReadersTotal,
+        giveawayPlayersRound, giveawaySpinsRound, giveawayWinnersRound,
       },
       visitsByDay,
       topPages,
       latestUsers,
+      giveaway: { active: giveawayActive, roundId: giveawayRoundId },
+      latestGiveawaySpins,
+      latestGiveawayWinners,
       // Pass links to the template for rendering
       adminUsersLink: '/admin/users',
       adminSettingsLink: '/admin/settings',
@@ -218,22 +253,67 @@ router.get('/settings', requireAdmin, (req, res) => {
     const rows = prepare('SELECT key, value FROM settings').all();
     const settings = {};
     rows.forEach(r => settings[r.key] = r.value);
-    res.render('admin/settings', { title: 'Impostazioni', settings, success: req.query.saved === '1' ? 'Impostazioni salvate correttamente.' : null });
+
+    settings.giveaway_active = settings.giveaway_active || '0';
+    settings.giveaway_round_id = settings.giveaway_round_id || '0';
+
+    let success = null;
+    if (req.query.saved === '1') {
+      const mailed = parseInt(req.query.giveawayEmails || '0', 10) || 0;
+      success = mailed > 0
+        ? `Impostazioni salvate. Email giveaway inviate a ${mailed} utenti verificati.`
+        : 'Impostazioni salvate correttamente.';
+    }
+
+    res.render('admin/settings', { title: 'Impostazioni', settings, success });
   } catch (err) {
     res.status(500).send('Errore nel caricamento impostazioni');
   }
 });
 
 // Admin Settings POST
-router.post('/settings', requireAdmin, (req, res) => {
+router.post('/settings', requireAdmin, async (req, res) => {
   try {
-    const keys = ['registration_verify_email', 'admin_notifications'];
+    const keys = ['registration_verify_email', 'admin_notifications', 'giveaway_active'];
+    const previous = {};
+
+    keys.forEach(key => {
+      previous[key] = prepare('SELECT value FROM settings WHERE key = ?').get(key)?.value || '0';
+    });
+
+    const next = {};
     keys.forEach(key => {
       const value = req.body[key] === '1' ? '1' : '0';
+      next[key] = value;
       prepare('UPDATE settings SET value = ?, updated_at = datetime(\'now\') WHERE key = ?').run(value, key);
     });
-    res.redirect('/admin/settings?saved=1');
+
+    let sentCount = 0;
+    const giveawayActivated = previous.giveaway_active !== '1' && next.giveaway_active === '1';
+
+    if (giveawayActivated) {
+      const currentRound = parseInt(prepare("SELECT value FROM settings WHERE key = 'giveaway_round_id'").get()?.value || '0', 10) || 0;
+      const nextRound = currentRound + 1;
+
+      prepare('UPDATE settings SET value = ?, updated_at = datetime(\'now\') WHERE key = ?').run(String(nextRound), 'giveaway_round_id');
+      prepare('UPDATE settings SET value = ?, updated_at = datetime(\'now\') WHERE key = ?').run(new Date().toISOString(), 'giveaway_started_at');
+
+      const verifiedUsers = prepare(
+        'SELECT nome, email FROM users WHERE deleted_at IS NULL AND email_verified = 1 ORDER BY created_at ASC'
+      ).all();
+
+      const results = await Promise.allSettled(
+        verifiedUsers.map((u) => notifyGiveawayStarted(u.email, u.nome, nextRound))
+      );
+      sentCount = results.filter((r) => r.status === 'fulfilled' && r.value).length;
+    }
+
+    const redirectUrl = sentCount > 0
+      ? `/admin/settings?saved=1&giveawayEmails=${sentCount}`
+      : '/admin/settings?saved=1';
+    res.redirect(redirectUrl);
   } catch (err) {
+    console.error('[Admin Settings] Error:', err);
     res.status(500).send('Errore nel salvataggio impostazioni');
   }
 });

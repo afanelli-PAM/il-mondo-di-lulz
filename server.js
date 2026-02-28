@@ -129,6 +129,7 @@ async function start() {
     if (req.method === 'GET'
       && !req.path.startsWith('/admin')
       && !req.path.startsWith('/api/')
+      && !req.path.startsWith('/autore/giveaway/')
       && !req.path.match(/\.(css|js|svg|png|jpg|jpeg|gif|ico|epub|woff2?)$/)) {
       try {
         const db = getDb();

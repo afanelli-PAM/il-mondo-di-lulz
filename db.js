@@ -146,12 +146,48 @@ function initSchema() {
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
     )
   `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS giveaway_spins (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      round_id INTEGER NOT NULL,
+      attempt_number INTEGER NOT NULL,
+      user_sign TEXT NOT NULL,
+      result_sign TEXT NOT NULL,
+      is_winner INTEGER NOT NULL DEFAULT 0,
+      accepted_terms INTEGER NOT NULL DEFAULT 0,
+      ip_address TEXT,
+      session_id TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    )
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS giveaway_winners (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      round_id INTEGER NOT NULL,
+      win_code TEXT NOT NULL UNIQUE,
+      winning_sign TEXT NOT NULL,
+      attempt_number INTEGER NOT NULL,
+      source_spin_id INTEGER,
+      redeemed INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now')),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+      FOREIGN KEY (source_spin_id) REFERENCES giveaway_spins(id) ON DELETE SET NULL
+    )
+  `);
 }
 
 function initSettings() {
   const defaults = [
     { key: 'registration_verify_email', value: '1' },
-    { key: 'admin_notifications', value: '0' }
+    { key: 'admin_notifications', value: '0' },
+    { key: 'giveaway_active', value: '0' },
+    { key: 'giveaway_round_id', value: '0' },
+    { key: 'giveaway_started_at', value: '' },
   ];
 
   for (const { key, value } of defaults) {

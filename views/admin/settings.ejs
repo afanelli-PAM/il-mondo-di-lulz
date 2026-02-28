@@ -61,6 +61,30 @@
                                     </div>
                                 </div>
 
+                                <!-- Giveaway Ruota -->
+                                <div class="setting-item"
+                                    style="display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; padding-bottom: 2rem; border-bottom: 1px solid #2a2a3a;">
+                                    <div class="setting-info">
+                                        <h3 style="color: var(--gold); margin-bottom: 0.5rem;">Giveaway Ruota Astrologica
+                                        </h3>
+                                        <p style="color: var(--text-muted); font-size: 0.9rem;">
+                                            Attiva/disattiva il giveaway del libro nella pagina "Il libro".<br>
+                                            Quando attivi il giveaway viene aperto un nuovo round e viene inviata una email
+                                            a tutti gli utenti con indirizzo verificato.
+                                        </p>
+                                        <p style="margin-top: 0.6rem; color: #b7b7c7; font-size: 0.85rem;">
+                                            Round corrente: <strong>#<%= settings.giveaway_round_id || '0' %></strong>
+                                        </p>
+                                    </div>
+                                    <div class="setting-control" style="padding-top: 0.5rem;">
+                                        <label class="switch">
+                                            <input type="checkbox" name="giveaway_active" value="1"
+                                                <%=settings.giveaway_active==='1' ? 'checked' : '' %>>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div style="margin-top: 3rem; text-align: center;">
