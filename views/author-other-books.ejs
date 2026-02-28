@@ -98,11 +98,19 @@
 <div id="flipbook-overlay" class="flipbook-overlay">
   <div class="flipbook-container">
     <button id="close-flipbook" class="close-btn" title="Chiudi">&times;</button>
-    <div id="book-container" class="book-container"></div>
+    <div id="book-viewport" class="book-viewport">
+      <div id="book-container" class="book-container"></div>
+    </div>
     <div class="flipbook-controls">
       <button id="prev-page" class="btn btn-secondary btn-sm" type="button">Indietro</button>
       <span id="page-info">Caricamento...</span>
       <button id="next-page" class="btn btn-secondary btn-sm" type="button">Avanti</button>
+      <div class="zoom-group">
+        <button id="zoom-out" class="btn btn-secondary btn-sm" type="button" aria-label="Riduci zoom">A-</button>
+        <span id="zoom-info">100%</span>
+        <button id="zoom-in" class="btn btn-secondary btn-sm" type="button" aria-label="Aumenta zoom">A+</button>
+        <button id="zoom-reset" class="btn btn-secondary btn-sm" type="button">Reset</button>
+      </div>
     </div>
   </div>
 </div>
@@ -116,11 +124,41 @@
   const trigger = document.getElementById('trigger-flipbook');
   const openInline = document.getElementById('open-flipbook-inline');
   const closeBtn = document.getElementById('close-flipbook');
+  const bookViewport = document.getElementById('book-viewport');
   const bookContainer = document.getElementById('book-container');
+  const zoomInfo = document.getElementById('zoom-info');
+
+  let zoomLevel = 1;
+  const ZOOM_MIN = 1;
+  const ZOOM_MAX = 2.2;
+  const ZOOM_STEP = 0.2;
+
+  function applyZoom() {
+    const pct = Math.round(zoomLevel * 100);
+    zoomInfo.textContent = `${pct}%`;
+    bookContainer.style.zoom = zoomLevel;
+
+    if (window.CSS && !CSS.supports('zoom', '1')) {
+      bookContainer.style.transform = `scale(${zoomLevel})`;
+      bookContainer.style.transformOrigin = 'top center';
+    } else {
+      bookContainer.style.transform = '';
+    }
+  }
+
+  function setZoom(targetZoom) {
+    const next = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, targetZoom));
+    if (next === zoomLevel) return;
+    zoomLevel = next;
+    applyZoom();
+  }
 
   function openFlipbook() {
     overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
+    applyZoom();
+    bookViewport.scrollTop = 0;
+    bookViewport.scrollLeft = 0;
     if (!pageFlip) {
       loadPdf();
     }
@@ -176,6 +214,24 @@
     moveFlipbook('next');
   });
 
+  document.getElementById('zoom-in').addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setZoom(zoomLevel + ZOOM_STEP);
+  });
+
+  document.getElementById('zoom-out').addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setZoom(zoomLevel - ZOOM_STEP);
+  });
+
+  document.getElementById('zoom-reset').addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setZoom(1);
+  });
+
   async function loadPdf() {
     try {
       const loadingTask = pdfjsLib.getDocument(pdfUrl);
@@ -223,6 +279,7 @@
       });
 
       document.getElementById('page-info').innerText = `1 / ${totalPages}`;
+      applyZoom();
     } catch (err) {
       console.error('Flipbook error:', err);
       alert('Errore durante il caricamento dell estratto. Riprova piu tardi.');
@@ -482,10 +539,20 @@
     align-items: center;
   }
 
-  .book-container {
+  .book-viewport {
     width: 100%;
     height: 80%;
     margin: auto;
+    overflow: auto;
+    padding: 8px 10px;
+    border-radius: 8px;
+  }
+
+  .book-container {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    transform-origin: top center;
   }
 
   .page-content {
@@ -513,6 +580,7 @@
   .flipbook-controls {
     padding: 20px;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 20px;
     color: #fff;
@@ -524,6 +592,19 @@
     position: relative;
     z-index: 101;
     pointer-events: auto;
+  }
+
+  .zoom-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #zoom-info {
+    min-width: 52px;
+    text-align: center;
+    font-weight: 700;
+    color: #e8cf8a;
   }
 
   @media (max-width: 991px) {
