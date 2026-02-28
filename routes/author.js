@@ -1,4 +1,6 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const { prepare } = require('../db');
 const { notifyAuthorFeedback } = require('../utils/email');
 
@@ -40,6 +42,14 @@ router.get('/', (req, res) => {
 
 // GET /autore/altri-libri - Pagina "Algoritmi"
 router.get('/altri-libri', (req, res) => {
+    const estrattoPath = path.join(__dirname, '..', 'public', 'downloads', 'Algoritmi_Estratto.pdf');
+    let estrattoVersion = Date.now();
+    try {
+        estrattoVersion = fs.statSync(estrattoPath).mtimeMs.toFixed(0);
+    } catch (err) {
+        console.warn('[AltriLibri] Impossibile leggere mtime estratto:', err.message);
+    }
+
     const algoritmiInfo = {
         titolo: 'Algoritmi',
         autore: 'Antonio Fanelli',
@@ -55,7 +65,7 @@ router.get('/altri-libri', (req, res) => {
         approfondimentoUrl: 'https://www.arte-news.it/ApprofondimentoPoliticaSociet/Esploso/15993/Algoritmi-di-Antonio-Fanelli-Un-Thriller-Tecnologico-che-Toglie-il-Respiro',
         trailerUrl: 'https://www.youtube.com/watch?v=z20eBwc2d8Q',
         trailerEmbedUrl: 'https://www.youtube.com/embed/z20eBwc2d8Q',
-        pdfPreviewUrl: '/downloads/Algoritmi_Estratto.pdf',
+        pdfPreviewUrl: `/downloads/Algoritmi_Estratto.pdf?v=${estrattoVersion}`,
         descrizione: 'Sara, una giovane di famiglia agiata, viene ricattata da un hacker chiamato "Riddle" dopo una notte nata per gioco. Da quel momento, minacce digitali, forum tossici e manipolazione online si intrecciano in un thriller teso e contemporaneo.',
         temi: [
             'Ricatto digitale e sorveglianza',
