@@ -89,6 +89,17 @@ router.get('/dashboard', requireAdmin, (req, res) => {
       "SELECT COUNT(DISTINCT COALESCE(session_id, ip_address)) as count FROM page_views WHERE page = 'read:algoritmi-estratto'"
     ).get().count;
 
+    // Lettori unici flipbook "Il Mondo di Lulz"
+    const lulzFlipbookReadersToday = prepare(
+      "SELECT COUNT(DISTINCT COALESCE(session_id, ip_address)) as count FROM page_views WHERE page = 'read:il-mondo-di-lulz-flipbook' AND created_at >= date('now')"
+    ).get().count;
+    const lulzFlipbookReadersWeek = prepare(
+      "SELECT COUNT(DISTINCT COALESCE(session_id, ip_address)) as count FROM page_views WHERE page = 'read:il-mondo-di-lulz-flipbook' AND created_at >= date('now', '-7 days')"
+    ).get().count;
+    const lulzFlipbookReadersTotal = prepare(
+      "SELECT COUNT(DISTINCT COALESCE(session_id, ip_address)) as count FROM page_views WHERE page = 'read:il-mondo-di-lulz-flipbook'"
+    ).get().count;
+
     // ── Visite ultimi 7 giorni (per grafico) ──
     const visitsByDay = prepare(`
       SELECT date(created_at) as giorno, COUNT(*) as visite, COUNT(DISTINCT ip_address) as unici
@@ -117,6 +128,7 @@ router.get('/dashboard', requireAdmin, (req, res) => {
         downloadsToday, downloadsWeek, downloadsTotal,
         pdfToday, pdfWeek, pdfTotal,
         algoritmiReadersToday, algoritmiReadersWeek, algoritmiReadersTotal,
+        lulzFlipbookReadersToday, lulzFlipbookReadersWeek, lulzFlipbookReadersTotal,
       },
       visitsByDay,
       topPages,

@@ -217,6 +217,27 @@ async function start() {
     res.sendFile(estrattoPath);
   });
 
+  // Tracked read access to "Il Mondo di Lulz" flipbook (count once per session)
+  app.get('/download/il-mondo-di-lulz-flipbook', (req, res) => {
+    try {
+      if (!req.session.lulzFlipbookTracked) {
+        req.session.lulzFlipbookTracked = true;
+        const db = getDb();
+        db.run(
+          `INSERT INTO page_views (page, ip_address, session_id, user_id, created_at)
+           VALUES ('read:il-mondo-di-lulz-flipbook', ?, ?, ?, datetime('now'))`,
+          [req.ip, req.sessionID || null, req.session?.userId || null]
+        );
+        saveDb();
+      }
+    } catch { /* ignore */ }
+
+    const bookPath = path.join(__dirname, 'public', 'downloads', 'IlMondoDiLulz.pdf');
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename="IlMondoDiLulz.pdf"');
+    res.sendFile(bookPath);
+  });
+
   // Homepage
   app.get('/', (req, res) => {
     res.render('index');
