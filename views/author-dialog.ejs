@@ -702,8 +702,8 @@
             aspect-ratio: 1/1;
             border-radius: 50%;
             position: relative;
-            --wheel-offset: -75deg;
-            --label-radius: 128px;
+            --wheel-offset: 0deg;
+            --label-radius: 156px;
             border: 8px solid rgba(255, 255, 255, 0.16);
             box-shadow:
                 0 0 0 8px rgba(218, 165, 32, 0.2),
@@ -738,19 +738,20 @@
             position: absolute;
             left: 50%;
             top: 50%;
-            width: 96px;
-            margin-left: -48px;
             text-align: center;
             display: flex;
             justify-content: center;
             align-items: center;
+            gap: 0.2rem;
+            padding: 0 0.2rem;
             color: #fff6db;
-            font-size: 0.76rem;
+            font-size: 0.7rem;
             font-weight: 600;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
             white-space: nowrap;
             pointer-events: none;
             transform:
+                translate(-50%, -50%)
                 rotate(calc(var(--i) * 30deg + var(--wheel-offset)))
                 translateY(calc(-1 * var(--label-radius)))
                 rotate(calc((var(--i) * -30deg) - var(--wheel-offset)));
@@ -1110,16 +1111,15 @@
 
             .wheel-label {
                 transform:
+                    translate(-50%, -50%)
                     rotate(calc(var(--i) * 30deg + var(--wheel-offset)))
                     translateY(calc(-1 * var(--label-radius)))
                     rotate(calc((var(--i) * -30deg) - var(--wheel-offset)));
-                font-size: 0.67rem;
-                width: 82px;
-                margin-left: -41px;
+                font-size: 0.62rem;
             }
 
             .zodiac-wheel {
-                --label-radius: 108px;
+                --label-radius: 138px;
             }
         }
     </style>
