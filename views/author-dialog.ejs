@@ -702,6 +702,8 @@
             aspect-ratio: 1/1;
             border-radius: 50%;
             position: relative;
+            --wheel-offset: -75deg;
+            --label-radius: 128px;
             border: 8px solid rgba(255, 255, 255, 0.16);
             box-shadow:
                 0 0 0 8px rgba(218, 165, 32, 0.2),
@@ -736,17 +738,22 @@
             position: absolute;
             left: 50%;
             top: 50%;
-            width: 98px;
-            margin-left: -49px;
+            width: 96px;
+            margin-left: -48px;
             text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             color: #fff6db;
             font-size: 0.76rem;
             font-weight: 600;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+            pointer-events: none;
             transform:
-                rotate(calc(var(--i) * 30deg - 75deg))
-                translateY(-172px)
-                rotate(calc((var(--i) * -30deg) + 75deg));
+                rotate(calc(var(--i) * 30deg + var(--wheel-offset)))
+                translateY(calc(-1 * var(--label-radius)))
+                rotate(calc((var(--i) * -30deg) - var(--wheel-offset)));
         }
 
         .wheel-center-star {
@@ -1103,12 +1110,16 @@
 
             .wheel-label {
                 transform:
-                    rotate(calc(var(--i) * 30deg - 75deg))
-                    translateY(-140px)
-                    rotate(calc((var(--i) * -30deg) + 75deg));
+                    rotate(calc(var(--i) * 30deg + var(--wheel-offset)))
+                    translateY(calc(-1 * var(--label-radius)))
+                    rotate(calc((var(--i) * -30deg) - var(--wheel-offset)));
                 font-size: 0.67rem;
-                width: 88px;
-                margin-left: -44px;
+                width: 82px;
+                margin-left: -41px;
+            }
+
+            .zodiac-wheel {
+                --label-radius: 108px;
             }
         }
     </style>
