@@ -38,6 +38,58 @@ router.get('/', (req, res) => {
     });
 });
 
+// GET /autore/altri-libri - Pagina "Algoritmi"
+router.get('/altri-libri', (req, res) => {
+    const algoritmiInfo = {
+        titolo: 'Algoritmi',
+        autore: 'Antonio Fanelli',
+        editore: 'Edizioni Mondo Nuovo',
+        collana: 'Tascabili da viaggio',
+        formato: '12x18,5 - brossurato',
+        pagine: '308',
+        isbn: '9791281202481',
+        uscita: '22 novembre 2024',
+        prezzo: 'EUR 18,00',
+        coverImage: '/images/CopertinaMondoNuovo.jpg',
+        productUrl: 'https://www.edizionimondonuovo.com/catalogo/algoritmi/',
+        approfondimentoUrl: 'https://www.arte-news.it/ApprofondimentoPoliticaSociet/Esploso/15993/Algoritmi-di-Antonio-Fanelli-Un-Thriller-Tecnologico-che-Toglie-il-Respiro',
+        trailerUrl: 'https://www.youtube.com/watch?v=z20eBwc2d8Q',
+        trailerEmbedUrl: 'https://www.youtube.com/embed/z20eBwc2d8Q',
+        pdfPreviewUrl: '/downloads/Algoritmi_Estratto.pdf',
+        descrizione: 'Sara, una giovane di famiglia agiata, viene ricattata da un hacker chiamato "Riddle" dopo una notte nata per gioco. Da quel momento, minacce digitali, forum tossici e manipolazione online si intrecciano in un thriller teso e contemporaneo.',
+        temi: [
+            'Ricatto digitale e sorveglianza',
+            'Manipolazione online e responsabilita collettiva',
+            'Confine fragile tra finzione, spettacolo e realta',
+            'Privacy come illusione nell era iperconnessa'
+        ]
+    };
+
+    const reviewExtracts = [
+        {
+            text: 'Un thriller tecnologico che toglie il respiro.',
+            source: 'Arte News',
+            url: algoritmiInfo.approfondimentoUrl
+        },
+        {
+            text: 'Tiene il lettore con il fiato sospeso fino all ultima pagina.',
+            source: 'Arte News',
+            url: algoritmiInfo.approfondimentoUrl
+        },
+        {
+            text: '4.40/5 di valutazione media della community (5 rating).',
+            source: 'Goodreads - Antonio Fanelli (author page)',
+            url: 'https://www.goodreads.com/author/list/6653396.Antonio_Fanelli'
+        }
+    ];
+
+    res.render('author-other-books', {
+        title: 'Altri libri dell autore',
+        algoritmiInfo,
+        reviewExtracts
+    });
+});
+
 // POST /autore/feedback - Invia messaggio o recensione
 router.post('/feedback', async (req, res) => {
     const { nome, email, tipo, contenuto, valutazione } = req.body;

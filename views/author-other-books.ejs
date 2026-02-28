@@ -1,0 +1,539 @@
+<%- include('partials/header') %>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
+
+<div class="other-books-page">
+  <section class="hero-mini">
+    <div class="container text-center">
+      <h1 class="glow-text">Altri libri dell'autore</h1>
+      <p class="subtitle">Il nuovo romanzo di Antonio Fanelli: <strong><%= algoritmiInfo.titolo %></strong></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="book-details-grid">
+        <div class="book-visual">
+          <div class="floating-book" id="trigger-flipbook" style="cursor: pointer;" title="Clicca per sfogliare l'estratto">
+            <img src="<%= algoritmiInfo.coverImage %>" alt="<%= algoritmiInfo.titolo %> - <%= algoritmiInfo.autore %>"
+              class="img-fluid rounded shadow-lg">
+            <div class="open-hint">Sfoglia estratto</div>
+          </div>
+        </div>
+        <div class="book-text-content">
+          <span class="book-badge">Nuova uscita</span>
+          <h2 class="section-title"><%= algoritmiInfo.titolo %></h2>
+          <p class="author-name">di <strong><%= algoritmiInfo.autore %></strong></p>
+
+          <div class="description-box">
+            <p><%= algoritmiInfo.descrizione %></p>
+          </div>
+
+          <div class="meta-grid">
+            <div><span class="meta-label">Editore</span><span><%= algoritmiInfo.editore %></span></div>
+            <div><span class="meta-label">Collana</span><span><%= algoritmiInfo.collana %></span></div>
+            <div><span class="meta-label">Formato</span><span><%= algoritmiInfo.formato %></span></div>
+            <div><span class="meta-label">Pagine</span><span><%= algoritmiInfo.pagine %></span></div>
+            <div><span class="meta-label">ISBN</span><span><%= algoritmiInfo.isbn %></span></div>
+            <div><span class="meta-label">Uscita</span><span><%= algoritmiInfo.uscita %></span></div>
+            <div><span class="meta-label">Prezzo</span><span><%= algoritmiInfo.prezzo %></span></div>
+          </div>
+
+          <div class="themes-box">
+            <h3>Temi principali</h3>
+            <ul>
+              <% algoritmiInfo.temi.forEach((tema) => { %>
+                <li><span class="star-bullet">&#10022;</span><%= tema %></li>
+              <% }) %>
+            </ul>
+          </div>
+
+          <div class="book-actions">
+            <a href="<%= algoritmiInfo.productUrl %>" target="_blank" rel="noopener" class="btn btn-primary btn-large">
+              Scheda libro
+            </a>
+            <a href="<%= algoritmiInfo.approfondimentoUrl %>" target="_blank" rel="noopener"
+              class="btn btn-secondary btn-large">
+              Approfondimento
+            </a>
+            <button id="open-flipbook-inline" class="btn btn-secondary btn-large" type="button">
+              Sfoglia estratto
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-dark-soft">
+    <div class="container">
+      <h3 class="section-subtitle text-center">Booktrailer ufficiale</h3>
+      <div class="video-wrap">
+        <iframe src="<%= algoritmiInfo.trailerEmbedUrl %>" title="Booktrailer Algoritmi" loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin" allowfullscreen
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
+      </div>
+      <p class="video-link text-center">
+        <a href="<%= algoritmiInfo.trailerUrl %>" target="_blank" rel="noopener">Apri su YouTube</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h3 class="section-subtitle text-center">Fascette dal web</h3>
+      <div class="fascette-grid">
+        <% reviewExtracts.forEach((item) => { %>
+          <article class="fascetta-card">
+            <p class="quote">"<%= item.text %>"</p>
+            <p class="source"><a href="<%= item.url %>" target="_blank" rel="noopener"><%= item.source %></a></p>
+          </article>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="flipbook-overlay" class="flipbook-overlay">
+  <div class="flipbook-container">
+    <button id="close-flipbook" class="close-btn" title="Chiudi">&times;</button>
+    <div id="book-container" class="book-container"></div>
+    <div class="flipbook-controls">
+      <button id="prev-page" class="btn btn-secondary btn-sm" type="button">Indietro</button>
+      <span id="page-info">Caricamento...</span>
+      <button id="next-page" class="btn btn-secondary btn-sm" type="button">Avanti</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const pdfUrl = '<%= algoritmiInfo.pdfPreviewUrl %>';
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  let pageFlip = null;
+  const overlay = document.getElementById('flipbook-overlay');
+  const trigger = document.getElementById('trigger-flipbook');
+  const openInline = document.getElementById('open-flipbook-inline');
+  const closeBtn = document.getElementById('close-flipbook');
+  const bookContainer = document.getElementById('book-container');
+
+  function openFlipbook() {
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    if (!pageFlip) {
+      loadPdf();
+    }
+  }
+
+  trigger.addEventListener('click', openFlipbook);
+  openInline.addEventListener('click', openFlipbook);
+
+  closeBtn.addEventListener('click', () => {
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  });
+
+  overlay.addEventListener('click', (event) => {
+    if (event.target === overlay) {
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  document.getElementById('prev-page').addEventListener('click', () => {
+    if (pageFlip) pageFlip.flipPrev();
+  });
+
+  document.getElementById('next-page').addEventListener('click', () => {
+    if (pageFlip) pageFlip.flipNext();
+  });
+
+  async function loadPdf() {
+    try {
+      const loadingTask = pdfjsLib.getDocument(pdfUrl);
+      const pdf = await loadingTask.promise;
+      const totalPages = pdf.numPages;
+
+      document.getElementById('page-info').innerText = `Caricamento... 1 / ${totalPages}`;
+
+      for (let i = 1; i <= totalPages; i++) {
+        const pageNode = document.createElement('div');
+        pageNode.className = 'page-content';
+        const canvas = document.createElement('canvas');
+        pageNode.appendChild(canvas);
+        bookContainer.appendChild(pageNode);
+
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 2 });
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        const renderContext = {
+          canvasContext: canvas.getContext('2d'),
+          viewport: viewport
+        };
+
+        await page.render(renderContext).promise;
+      }
+
+      pageFlip = new St.PageFlip(bookContainer, {
+        width: 550,
+        height: 733,
+        size: 'stretch',
+        minWidth: 315,
+        maxWidth: 1000,
+        minHeight: 420,
+        maxHeight: 1350,
+        maxShadowOpacity: 0.5,
+        showCover: true,
+        mobileScrollSupport: false
+      });
+
+      pageFlip.loadFromHTML(document.querySelectorAll('.page-content'));
+      pageFlip.on('flip', (event) => {
+        document.getElementById('page-info').innerText = `${event.data + 1} / ${totalPages}`;
+      });
+
+      document.getElementById('page-info').innerText = `1 / ${totalPages}`;
+    } catch (err) {
+      console.error('Flipbook error:', err);
+      alert('Errore durante il caricamento dell estratto. Riprova piu tardi.');
+    }
+  }
+</script>
+
+<style>
+  .other-books-page {
+    color: #e0d5b0;
+  }
+
+  .hero-mini {
+    padding: 80px 0;
+    background: linear-gradient(130deg, #0a0a15 0%, #141421 55%, #1d1623 100%);
+    border-bottom: 1px solid #daa52033;
+  }
+
+  .glow-text {
+    color: #daa520;
+    text-shadow: 0 0 15px rgba(218, 165, 32, 0.35);
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-bottom: 0.8rem;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: #b5ac95;
+  }
+
+  .section {
+    padding: 60px 0;
+  }
+
+  .bg-dark-soft {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .book-details-grid {
+    display: grid;
+    grid-template-columns: minmax(230px, 1fr) 1.7fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .floating-book {
+    position: relative;
+    max-width: 360px;
+    margin: 0 auto;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .floating-book img {
+    border: 1px solid #daa52055;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0) rotateY(-3deg); }
+    50% { transform: translateY(-16px) rotateY(3deg); }
+    100% { transform: translateY(0) rotateY(-3deg); }
+  }
+
+  .open-hint {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(218, 165, 32, 0.9);
+    color: #120f1f;
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+  }
+
+  .book-badge {
+    display: inline-block;
+    margin-bottom: 1rem;
+    border: 1px solid #daa52066;
+    color: #d9c896;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 3.6vw, 2.8rem);
+    color: #daa520;
+    margin-bottom: 0.3rem;
+  }
+
+  .author-name {
+    color: #c9bc97;
+    margin-bottom: 1.2rem;
+    font-size: 1.05rem;
+  }
+
+  .description-box {
+    color: #d2d0ca;
+    line-height: 1.7;
+    margin-bottom: 1.4rem;
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.7rem 1rem;
+    margin-bottom: 1.4rem;
+  }
+
+  .meta-grid > div {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid #ffffff1a;
+    border-radius: 8px;
+    padding: 0.6rem 0.7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .meta-label {
+    font-size: 0.73rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #968a6f;
+  }
+
+  .themes-box h3 {
+    color: #daa520;
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .themes-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.3rem;
+  }
+
+  .themes-box li {
+    margin-bottom: 0.55rem;
+  }
+
+  .star-bullet {
+    color: #daa520;
+    margin-right: 8px;
+  }
+
+  .book-actions {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .section-subtitle {
+    margin-bottom: 1.2rem;
+    color: #dfc987;
+    font-size: 1.7rem;
+  }
+
+  .video-wrap {
+    position: relative;
+    width: min(900px, 100%);
+    margin: 0 auto;
+    border: 1px solid #daa52044;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+    background: #000;
+  }
+
+  .video-wrap::before {
+    content: '';
+    display: block;
+    padding-top: 56.25%;
+  }
+
+  .video-wrap iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .video-link {
+    margin-top: 0.9rem;
+  }
+
+  .video-link a {
+    color: #d9bf74;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .fascette-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .fascetta-card {
+    background: linear-gradient(145deg, rgba(218, 165, 32, 0.18), rgba(26, 26, 46, 0.7));
+    border: 1px solid #daa52044;
+    border-radius: 10px;
+    padding: 1rem;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .fascetta-card .quote {
+    color: #f3e7c8;
+    font-size: 1.05rem;
+    line-height: 1.45;
+    margin-bottom: 0.9rem;
+    font-style: italic;
+  }
+
+  .fascetta-card .source {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #b6a583;
+  }
+
+  .fascetta-card .source a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid #b6a58366;
+  }
+
+  .flipbook-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .flipbook-overlay.active {
+    display: flex;
+  }
+
+  .flipbook-container {
+    width: 90vw;
+    height: 90vh;
+    max-width: 1200px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .book-container {
+    width: 100%;
+    height: 80%;
+    margin: auto;
+  }
+
+  .page-content {
+    background-color: #fff;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .page-content canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2.4rem;
+    cursor: pointer;
+  }
+
+  .flipbook-controls {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    color: #fff;
+  }
+
+  @media (max-width: 991px) {
+    .book-details-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .book-visual {
+      max-width: 340px;
+      margin: 0 auto;
+    }
+
+    .fascette-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .section {
+      padding: 45px 0;
+    }
+
+    .fascette-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .book-actions {
+      flex-direction: column;
+    }
+
+    .book-actions .btn {
+      width: 100%;
+    }
+
+    .flipbook-container {
+      width: 95vw;
+      height: 80vh;
+    }
+
+    .flipbook-controls {
+      gap: 12px;
+      font-size: 0.8rem;
+    }
+  }
+</style>
+
+<%- include('partials/footer') %>
